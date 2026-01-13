@@ -21,7 +21,7 @@ export default function PromoBanner() {
         </svg>
       ),
       title: 'Fast Delivery',
-      description: '24/7 delivery service at your doorstep',
+      description: 'Get 24/7 delivery service right at your doorstep',
       color: 'secondary'
     },
     {
@@ -54,105 +54,145 @@ export default function PromoBanner() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-orange-100 to-orange-50">
+      {/* Decorative top elements */}
+      <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-orange-200/30 to-orange-300/30 rounded-full blur-3xl"></div>
+      <div className="absolute top-20 right-0 w-96 h-96 bg-gradient-to-br from-orange-300/30 to-orange-200/30 rounded-full blur-3xl"></div>
+      
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary-600 via-secondary-600 to-accent-600 rounded-3xl mb-12 shadow-2xl mx-4 mt-4">
-        <div className="absolute inset-0 bg-white bg-opacity-10 backdrop-blur-sm"></div>
-        <div className="relative px-8 py-16 md:py-24 text-center text-white">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in">
-              Welcome to <span className="text-yellow-300">MediMitra</span>
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-white text-opacity-90">
-              Your Trusted Partner in Healthcare
-            </p>
-            <p className="text-lg mb-10 text-white text-opacity-80 max-w-2xl mx-auto">
-              Access quality medicines from verified pharmacies, delivered to your doorstep with care and precision.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <button
-                onClick={() => navigate('/login-user')}
-                className="btn bg-white text-primary-600 hover:bg-gray-100 text-lg px-8"
-              >
-                Browse Medicines
-              </button>
-              <button
-                onClick={() => navigate('/login-selection')}
-                className="btn bg-primary-800 bg-opacity-50 backdrop-blur-sm hover:bg-opacity-70 text-white text-lg px-8"
-              >
-                Get Started
-              </button>
-              <button
-                onClick={() => navigate('/store-locator')}
-                className="btn bg-accent-600 bg-opacity-80 backdrop-blur-sm hover:bg-opacity-100 text-white text-lg px-8"
-              >
-                Find Stores
-              </button>
-            </div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+        <div className="text-center mb-20">
+          <div className="inline-block mb-6">
+            <span className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg">
+              ✨ India's Most Trusted Healthcare Platform
+            </span>
+          </div>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-gray-900">
+            Welcome to <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">MediMitra</span>
+          </h1>
+          <p className="text-xl md:text-2xl mb-6 text-gray-700 font-medium">
+            Your Trusted Partner in Healthcare
+          </p>
+          <p className="text-base mb-12 text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Access quality medicines from verified pharmacies, delivered to your doorstep with care and precision.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <button
+              onClick={() => navigate('/login-user')}
+              className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-8 py-3 rounded-lg text-base font-medium hover:shadow-xl transition-all shadow-md transform hover:-translate-y-0.5"
+            >
+              Browse Medicines
+            </button>
+            <button
+              onClick={() => navigate('/login-selection')}
+              className="bg-white/90 backdrop-blur-sm border-2 border-orange-300 text-gray-800 px-8 py-3 rounded-lg text-base font-medium hover:bg-white hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+            >
+              Get Started
+            </button>
+            <button
+              onClick={() => navigate('/store-locator')}
+              className="bg-white/70 backdrop-blur-sm border-2 border-orange-200 text-orange-600 px-8 py-3 rounded-lg text-base font-medium hover:bg-white hover:border-orange-400 transition-all transform hover:-translate-y-0.5"
+            >
+              Find Stores
+            </button>
           </div>
         </div>
-        
-        {/* Decorative Elements */}
-        <div className="absolute top-10 right-10 w-32 h-32 bg-white bg-opacity-10 rounded-full blur-2xl"></div>
-        <div className="absolute bottom-10 left-10 w-40 h-40 bg-white bg-opacity-10 rounded-full blur-2xl"></div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        {/* Decorative Divider */}
+        <div className="flex items-center justify-center mb-20">
+          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
+          <div className="mx-4 text-orange-400">✦</div>
+          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
+        </div>
         {/* Stats Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
           {stats.map((stat, index) => (
-            <div
-              key={index}
-              className={`bg-gradient-to-br from-${stat.color}-500 to-${stat.color}-600 rounded-2xl p-6 text-center text-white shadow-lg transform hover:scale-105 transition-all duration-300`}
-            >
-              <div className="text-4xl font-bold mb-2">{stat.number}</div>
-              <div className="text-sm opacity-90">{stat.label}</div>
+            <div key={index} className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-300/20 to-orange-500/20 rounded-xl blur-xl group-hover:blur-2xl transition-all"></div>
+              <div className="relative text-center bg-white/80 backdrop-blur-lg rounded-xl p-6 border-2 border-white/60 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+                <div className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent mb-2">{stat.number}</div>
+                <div className="text-gray-700 font-medium">{stat.label}</div>
+              </div>
             </div>
           ))}
         </div>
 
+        {/* Decorative Divider */}
+        <div className="flex items-center justify-center mb-16">
+          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
+          <div className="mx-4 text-orange-400">❖</div>
+          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
+        </div>
+
         {/* Features Section */}
-        <div className="mb-12">
-          <div className="text-center mb-10">
-            <h2 className="text-4xl font-bold gradient-text mb-4">Why Choose MediMitra?</h2>
-            <p className="text-gray-600 text-lg">Experience healthcare at its finest with our comprehensive features</p>
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-blue-600 mb-3">Why Choose MediMitra?</h2>
+            <p className="text-gray-600">Experience healthcare at its finest with our comprehensive features</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
+            {features.map((feature, index) => {
+              const isBlue = index % 2 === 0;
+              const colorClasses = isBlue 
+                ? {
+                    blur: 'from-blue-200/30 to-blue-400/30',
+                    border: 'hover:border-blue-300',
+                    iconBg: 'from-blue-100 to-blue-200',
+                    iconText: 'text-blue-600'
+                  }
+                : {
+                    blur: 'from-green-200/30 to-green-400/30',
+                    border: 'hover:border-green-300',
+                    iconBg: 'from-green-100 to-green-200',
+                    iconText: 'text-green-600'
+                  };
+              
+              return (
               <div
                 key={index}
-                className="card hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                className="relative group"
               >
-                <div className={`w-16 h-16 bg-gradient-to-br from-${feature.color}-500 to-${feature.color}-600 rounded-2xl flex items-center justify-center text-white mb-4`}>
-                  {feature.icon}
+                <div className={`absolute inset-0 bg-gradient-to-br ${colorClasses.blur} rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-all`}></div>
+                <div className={`relative bg-white/80 backdrop-blur-md p-6 rounded-xl border-2 border-white/70 ${colorClasses.border} hover:shadow-xl transition-all duration-300`}>
+                  <div className={`w-14 h-14 bg-gradient-to-br ${colorClasses.iconBg} rounded-lg flex items-center justify-center ${colorClasses.iconText} mb-4 border border-${isBlue ? 'blue' : 'green'}-200/50 shadow-sm`}>
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{feature.title}</h3>
+                  <p className="text-gray-600 text-sm">{feature.description}</p>
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
               </div>
-            ))}
+            )})}
           </div>
         </div>
 
+        {/* Decorative Divider */}
+        <div className="flex items-center justify-center mb-16">
+          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
+          <div className="mx-4 text-orange-400">✦</div>
+          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
+        </div>
+
         {/* Role-Based Quick Access */}
-        <div className="bg-white rounded-3xl shadow-xl p-8 mb-12">
-          <h2 className="text-3xl font-bold text-center gradient-text mb-8">Portal Access</h2>
-          <div className="grid md:grid-cols-3 gap-6">
+        <div className="mb-20">
+          <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent mb-12">Portal Access</h2>
+          <div className="grid md:grid-cols-3 gap-8">
             <button onClick={() => navigate('/login-admin')} className="group text-left">
-              <div className="card hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary-400">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center text-white text-2xl">
+              <div className="relative overflow-hidden bg-white/80 backdrop-blur-md p-6 rounded-xl border-2 border-orange-200/60 hover:border-orange-400 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-200/30 to-orange-300/30 rounded-full blur-2xl -mr-16 -mt-16"></div>
+                <div className="relative flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">
                     👨‍💼
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-800">Admin Portal</h3>
-                    <p className="text-sm text-gray-500">Manage Platform</p>
+                    <h3 className="text-lg font-semibold text-gray-800">Admin Portal</h3>
+                    <p className="text-xs text-gray-500">Manage Platform</p>
                   </div>
                 </div>
                 <p className="text-gray-600 text-sm mb-4">
                   Control medicines, stores, and monitor overall platform activities.
                 </p>
-                <div className="flex items-center text-primary-600 font-semibold group-hover:gap-2 transition-all">
+                <div className="flex items-center text-orange-600 font-medium group-hover:gap-2 transition-all">
                   Access Portal
                   <svg className="w-5 h-5 ml-1 group-hover:ml-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -162,20 +202,21 @@ export default function PromoBanner() {
             </button>
 
             <button onClick={() => navigate('/login-store')} className="group text-left">
-              <div className="card hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-secondary-400">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-2xl flex items-center justify-center text-white text-2xl">
+              <div className="relative overflow-hidden bg-white/80 backdrop-blur-md p-6 rounded-xl border-2 border-blue-300/60 hover:border-blue-500 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-300/30 to-blue-400/30 rounded-full blur-2xl -mr-16 -mt-16"></div>
+                <div className="relative flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">
                     🏪
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-800">Store Portal</h3>
-                    <p className="text-sm text-gray-500">Manage Inventory</p>
+                    <h3 className="text-lg font-semibold text-gray-800">Store Portal</h3>
+                    <p className="text-xs text-gray-500">Manage Inventory</p>
                   </div>
                 </div>
                 <p className="text-gray-600 text-sm mb-4">
                   Track inventory, manage customers, and handle orders efficiently.
                 </p>
-                <div className="flex items-center text-secondary-600 font-semibold group-hover:gap-2 transition-all">
+                <div className="flex items-center text-blue-600 font-medium group-hover:gap-2 transition-all">
                   Access Portal
                   <svg className="w-5 h-5 ml-1 group-hover:ml-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -185,20 +226,21 @@ export default function PromoBanner() {
             </button>
 
             <button onClick={() => navigate('/login-user')} className="group text-left">
-              <div className="card hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-accent-400">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-accent-500 to-accent-600 rounded-2xl flex items-center justify-center text-white text-2xl">
+              <div className="relative overflow-hidden bg-white/80 backdrop-blur-md p-6 rounded-xl border-2 border-green-300/60 hover:border-green-500 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-300/30 to-green-400/30 rounded-full blur-2xl -mr-16 -mt-16"></div>
+                <div className="relative flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">
                     👤
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-800">Customer Portal</h3>
-                    <p className="text-sm text-gray-500">Shop Medicines</p>
+                    <h3 className="text-lg font-semibold text-gray-800">Customer Portal</h3>
+                    <p className="text-xs text-gray-500">Shop Medicines</p>
                   </div>
                 </div>
                 <p className="text-gray-600 text-sm mb-4">
                   Browse, search, and purchase medicines with ease and convenience.
                 </p>
-                <div className="flex items-center text-accent-600 font-semibold group-hover:gap-2 transition-all">
+                <div className="flex items-center text-green-600 font-medium group-hover:gap-2 transition-all">
                   Start Shopping
                   <svg className="w-5 h-5 ml-1 group-hover:ml-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -209,18 +251,30 @@ export default function PromoBanner() {
           </div>
         </div>
 
+        {/* Final Decorative Divider */}
+        <div className="flex items-center justify-center mb-12">
+          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
+          <div className="mx-4 text-orange-400">✧</div>
+          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
+        </div>
+
         {/* CTA Section */}
-        <div className="bg-gradient-to-r from-primary-600 via-secondary-600 to-accent-600 rounded-3xl p-12 text-center text-white shadow-xl">
-          <h2 className="text-4xl font-bold mb-4">Ready to Get Started?</h2>
-          <p className="text-xl mb-8 text-white text-opacity-90">
-            Join thousands of satisfied customers who trust MediMitra for their healthcare needs
-          </p>
-          <button
-            onClick={() => navigate('/register')}
-            className="btn bg-white text-primary-600 hover:bg-gray-100 text-lg px-10"
-          >
-            Create Account Now
-          </button>
+        <div className="relative overflow-hidden bg-gradient-to-r from-purple-500 to-purple-700 rounded-2xl p-12 text-center text-white shadow-2xl">
+          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+          <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -ml-32 -mt-32"></div>
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mb-32"></div>
+          <div className="relative">
+            <h2 className="text-3xl font-bold mb-3">Ready to Get Started?</h2>
+            <p className="text-lg mb-8 opacity-95">
+              Join thousands of satisfied customers who trust MediMitra for their healthcare needs
+            </p>
+            <button
+              onClick={() => navigate('/register')}
+              className="bg-white text-purple-600 hover:bg-gray-50 px-10 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              Create Account Now
+            </button>
+          </div>
         </div>
       </div>
     </div>

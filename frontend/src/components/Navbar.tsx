@@ -41,14 +41,14 @@ const Navbar = () => {
       case 'admin':
         return (
           <>
-            <Link to="/admin" className={getLinkClass('/admin')}>
-              👨‍💼 Dashboard
+            <Link to="/admin?tab=analytics" className={getLinkClass('/admin')}>
+              📊 Analytics
             </Link>
-            <Link to="/medicines" className={getLinkClass('/medicines')}>
+            <Link to="/admin?tab=medicines" className={getLinkClass('/admin')}>
               💊 Medicines
             </Link>
-            <Link to="/store-locator" className={getLinkClass('/store-locator')}>
-              📍 Find Stores
+            <Link to="/admin?tab=stores" className={getLinkClass('/admin')}>
+              🏪 Stores
             </Link>
           </>
         );

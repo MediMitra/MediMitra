@@ -4,15 +4,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "medicines")
+@Table(name = "stores")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Medicine {
+public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,27 +19,26 @@ public class Medicine {
     @Column(nullable = false)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    @Column(nullable = false)
+    private String address;
 
     @Column(nullable = false)
-    private BigDecimal price;
+    private String city;
+
+    private String phone;
 
     @Column(nullable = false)
-    private Integer stock;
+    private Double latitude;
 
-    private String category;
+    @Column(nullable = false)
+    private Double longitude;
 
-    private String manufacturer;
+    private String timings;
 
-    private String imageUrl;
+    private Integer medicineCount = 0;
 
-    // New fields for medicine type and salt composition
-    private String salt; // e.g., "Azithromycin"
-    
-    private String type; // e.g., "Pain Relief", "Antibiotic", "Allergy", etc.
-
-    private Boolean prescriptionRequired = false;
+    @Column(nullable = false)
+    private String status = "Active"; // Active, Inactive
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

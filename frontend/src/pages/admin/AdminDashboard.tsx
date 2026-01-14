@@ -1,134 +1,136 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useSearchParams } from 'react-router-dom';
+import axios from 'axios';
+import AddMedicine from './AddMedicine';
+import AddStore from './AddStore';
+
+const API_BASE_URL = 'http://localhost:8080/api';
 
 function AdminDashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('medicines');
-  const [medicines, setMedicines] = useState([
-    { id: 1, name: 'Paracetamol 500mg', category: 'Pain Relief', price: 50, stock: 500, manufacturer: 'PharmaCo', status: 'In Stock' },
-    { id: 2, name: 'Amoxicillin 250mg', category: 'Antibiotic', price: 120, stock: 200, manufacturer: 'MediLife', status: 'In Stock' },
-    { id: 3, name: 'Cetirizine 10mg', category: 'Allergy', price: 80, stock: 300, manufacturer: 'HealthCare', status: 'In Stock' },
-    { id: 4, name: 'Omeprazole 20mg', category: 'Digestive', price: 150, stock: 150, manufacturer: 'WellMed', status: 'Low Stock' },
-  ]);
-
-  const [stores, setStores] = useState([
-    { id: 101, name: 'MediPlus Pharmacy', location: 'Downtown', contact: '+91-9876543210', medicines: 450, status: 'Active' },
-    { id: 102, name: 'HealthCare Store', location: 'Uptown', contact: '+91-9876543211', medicines: 380, status: 'Active' },
-    { id: 103, name: 'WellCare Pharmacy', location: 'Central', contact: '+91-9876543212', medicines: 520, status: 'Active' },
-  ]);
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'analytics');
+  const [dashboardStats, setDashboardStats] = useState(null);
+  const [medicines, setMedicines] = useState([]);
+  const [stores, setStores] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [showAddMedicine, setShowAddMedicine] = useState(false);
   const [showAddStore, setShowAddStore] = useState(false);
-  const [newMedicine, setNewMedicine] = useState({
-    name: '', category: '', price: '', stock: '', manufacturer: ''
-  });
-  const [newStore, setNewStore] = useState({
-    name: '', location: '', contact: ''
-  });
 
-  const handleAddMedicine = (e) => {
-    e.preventDefault();
-    const medicine = {
-      id: Date.now(),
-      ...newMedicine,
-      status: parseInt(newMedicine.stock) > 100 ? 'In Stock' : 'Low Stock'
-    };
-    setMedicines([...medicines, medicine]);
-    setNewMedicine({ name: '', category: '', price: '', stock: '', manufacturer: '' });
-    setShowAddMedicine(false);
+  useEffect(() => {
+    const tab = searchParams.get('tab') || 'analytics';
+    setActiveTab(tab);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (activeTab === 'analytics') {
+      fetchDashboardStats();
+    } else if (activeTab === 'medicines') {
+      fetchMedicines();
+    } else if (activeTab === 'stores') {
+      fetchStores();
+    }
+  }, [activeTab]);
+
+  const fetchDashboardStats = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admin/dashboard/stats`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setDashboardStats(response.data);
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddStore = (e) => {
-    e.preventDefault();
-    const store = {
-      id: Date.now(),
-      ...newStore,
-      medicines: 0,
-      status: 'Active'
-    };
-    setStores([...stores, store]);
-    setNewStore({ name: '', location: '', contact: '' });
-    setShowAddStore(false);
+  const fetchMedicines = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/medicines`);
+      setMedicines(response.data);
+    } catch (error) {
+      console.error('Error fetching medicines:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteMedicine = (id) => {
-    setMedicines(medicines.filter(m => m.id !== id));
+  const fetchStores = async () => {
+    setLoading(true);
+    try {
+      console.log('Fetching stores from:', `${API_BASE_URL}/stores`);
+      const response = await axios.get(`${API_BASE_URL}/stores`);
+      console.log('Stores fetched:', response.data);
+      setStores(response.data);
+    } catch (error) {
+      console.error('Error fetching stores:', error);
+      alert('Failed to fetch stores: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteStore = (id) => {
-    setStores(stores.filter(s => s.id !== id));
+  const handleDeleteMedicine = async (id) => {
+    if (!confirm('Are you sure you want to delete this medicine?')) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/medicines/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      fetchMedicines();
+      if (activeTab === 'dashboard') fetchDashboardStats();
+    } catch (error) {
+      console.error('Error deleting medicine:', error);
+      alert('Failed to delete medicine');
+    }
+  };
+
+  const handleDeleteStore = async (id) => {
+    if (!confirm('Are you sure you want to delete this store?')) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/stores/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      fetchStores();
+      if (activeTab === 'dashboard') fetchDashboardStats();
+    } catch (error) {
+      console.error('Error deleting store:', error);
+      alert('Failed to delete store');
+    }
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount || 0);
   };
 
   return (
     <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-3xl p-8 mb-8 text-white shadow-xl">
-        <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-        <p className="text-primary-100">Welcome back, {user?.name}! Manage your platform efficiently.</p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-primary-100 text-sm font-medium">Total Medicines</p>
-              <p className="text-4xl font-bold mt-2">{medicines.length}</p>
-            </div>
-            <div className="bg-white bg-opacity-20 p-4 rounded-xl">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-secondary-100 text-sm font-medium">Active Stores</p>
-              <p className="text-4xl font-bold mt-2">{stores.length}</p>
-            </div>
-            <div className="bg-white bg-opacity-20 p-4 rounded-xl">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-accent-500 to-accent-600 rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-accent-100 text-sm font-medium">Total Stock</p>
-              <p className="text-4xl font-bold mt-2">{medicines.reduce((sum, m) => sum + parseInt(m.stock), 0)}</p>
-            </div>
-            <div className="bg-white bg-opacity-20 p-4 rounded-xl">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100 text-sm font-medium">Low Stock Items</p>
-              <p className="text-4xl font-bold mt-2">{medicines.filter(m => m.status === 'Low Stock').length}</p>
-            </div>
-            <div className="bg-white bg-opacity-20 p-4 rounded-xl">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-          </div>
-        </div>
+      <div className="bg-gradient-to-r from-primary-600 via-secondary-600 to-accent-600 rounded-3xl p-8 mb-8 text-white shadow-xl">
+        <h1 className="text-4xl font-bold mb-2">🎯 Admin Dashboard</h1>
+        <p className="text-white text-opacity-90">Welcome back, {user?.name}! Manage your platform efficiently.</p>
       </div>
 
       {/* Tabs */}
       <div className="bg-white rounded-2xl shadow-lg p-2 mb-8">
         <div className="flex gap-2">
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
+              activeTab === 'analytics'
+                ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            📊 Analytics
+          </button>
           <button
             onClick={() => setActiveTab('medicines')}
             className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
@@ -152,11 +154,168 @@ function AdminDashboard() {
         </div>
       </div>
 
+      {/* Dashboard Tab */}
+      {activeTab === 'analytics' && (
+        <div>
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading analytics...</p>
+            </div>
+          ) : dashboardStats ? (
+            <>
+              {/* Primary Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-all">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-100 text-sm font-medium">Total Revenue</p>
+                      <p className="text-3xl font-bold mt-2">{formatCurrency(dashboardStats.totalRevenue)}</p>
+                      <p className="text-green-100 text-xs mt-1">All time</p>
+                    </div>
+                    <div className="bg-white bg-opacity-20 p-4 rounded-xl">
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-all">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-blue-100 text-sm font-medium">Today's Revenue</p>
+                      <p className="text-3xl font-bold mt-2">{formatCurrency(dashboardStats.todayRevenue)}</p>
+                      <p className="text-blue-100 text-xs mt-1">{dashboardStats.todayOrders} orders</p>
+                    </div>
+                    <div className="bg-white bg-opacity-20 p-4 rounded-xl">
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-all">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-100 text-sm font-medium">Avg Daily Sales</p>
+                      <p className="text-3xl font-bold mt-2">{formatCurrency(dashboardStats.averageDailySales)}</p>
+                      <p className="text-purple-100 text-xs mt-1">Per day average</p>
+                    </div>
+                    <div className="bg-white bg-opacity-20 p-4 rounded-xl">
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-all">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-orange-100 text-sm font-medium">Avg Monthly Sales</p>
+                      <p className="text-3xl font-bold mt-2">{formatCurrency(dashboardStats.averageMonthlySales)}</p>
+                      <p className="text-orange-100 text-xs mt-1">Per month average</p>
+                    </div>
+                    <div className="bg-white bg-opacity-20 p-4 rounded-xl">
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Secondary Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-primary-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-600 text-sm font-medium">Total Medicines</p>
+                      <p className="text-3xl font-bold text-primary-600 mt-2">{dashboardStats.totalMedicines}</p>
+                    </div>
+                    <div className="bg-primary-100 p-4 rounded-xl">
+                      <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-secondary-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-600 text-sm font-medium">Active Stores</p>
+                      <p className="text-3xl font-bold text-secondary-600 mt-2">{dashboardStats.activeStores}/{dashboardStats.totalStores}</p>
+                    </div>
+                    <div className="bg-secondary-100 p-4 rounded-xl">
+                      <svg className="w-8 h-8 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-accent-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-600 text-sm font-medium">Total Orders</p>
+                      <p className="text-3xl font-bold text-accent-600 mt-2">{dashboardStats.totalOrders}</p>
+                    </div>
+                    <div className="bg-accent-100 p-4 rounded-xl">
+                      <svg className="w-8 h-8 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-red-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-600 text-sm font-medium">Low Stock Items</p>
+                      <p className="text-3xl font-bold text-red-600 mt-2">{dashboardStats.lowStockMedicines}</p>
+                    </div>
+                    <div className="bg-red-100 p-4 rounded-xl">
+                      <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Monthly Overview */}
+              <div className="bg-white rounded-2xl p-8 shadow-lg">
+                <h3 className="text-2xl font-bold text-gray-800 mb-6">📈 Monthly Overview</h3>
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6">
+                    <p className="text-blue-700 font-semibold mb-2">This Month Orders</p>
+                    <p className="text-4xl font-bold text-blue-900">{dashboardStats.monthlyOrders}</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6">
+                    <p className="text-green-700 font-semibold mb-2">Total Users</p>
+                    <p className="text-4xl font-bold text-green-900">{dashboardStats.totalUsers}</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6">
+                    <p className="text-purple-700 font-semibold mb-2">Today's Orders</p>
+                    <p className="text-4xl font-bold text-purple-900">{dashboardStats.todayOrders}</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-12 text-gray-500">No data available</div>
+          )}
+        </div>
+      )}
+
       {/* Medicines Tab */}
       {activeTab === 'medicines' && (
         <div>
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Medicine Inventory</h2>
+            <h2 className="text-2xl font-bold text-gray-800">💊 Medicine Inventory</h2>
             <button
               onClick={() => setShowAddMedicine(true)}
               className="btn btn-primary flex items-center gap-2"
@@ -168,111 +327,79 @@ function AdminDashboard() {
             </button>
           </div>
 
-          {/* Add Medicine Modal */}
           {showAddMedicine && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-                <h3 className="text-2xl font-bold mb-6 gradient-text">Add New Medicine</h3>
-                <form onSubmit={handleAddMedicine}>
-                  <div className="space-y-4">
-                    <input
-                      type="text"
-                      placeholder="Medicine Name"
-                      className="input"
-                      value={newMedicine.name}
-                      onChange={(e) => setNewMedicine({...newMedicine, name: e.target.value})}
-                      required
-                    />
-                    <input
-                      type="text"
-                      placeholder="Category"
-                      className="input"
-                      value={newMedicine.category}
-                      onChange={(e) => setNewMedicine({...newMedicine, category: e.target.value})}
-                      required
-                    />
-                    <input
-                      type="number"
-                      placeholder="Price (₹)"
-                      className="input"
-                      value={newMedicine.price}
-                      onChange={(e) => setNewMedicine({...newMedicine, price: e.target.value})}
-                      required
-                    />
-                    <input
-                      type="number"
-                      placeholder="Stock Quantity"
-                      className="input"
-                      value={newMedicine.stock}
-                      onChange={(e) => setNewMedicine({...newMedicine, stock: e.target.value})}
-                      required
-                    />
-                    <input
-                      type="text"
-                      placeholder="Manufacturer"
-                      className="input"
-                      value={newMedicine.manufacturer}
-                      onChange={(e) => setNewMedicine({...newMedicine, manufacturer: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div className="flex gap-4 mt-6">
-                    <button type="submit" className="btn btn-primary flex-1">Add Medicine</button>
-                    <button
-                      type="button"
-                      onClick={() => setShowAddMedicine(false)}
-                      className="btn btn-outline flex-1"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
+            <AddMedicine
+              onClose={() => {
+                setShowAddMedicine(false);
+                fetchMedicines();
+              }}
+            />
           )}
 
-          <div className="grid gap-4">
-            {medicines.map((medicine) => (
-              <div key={medicine.id} className="card hover:border-primary-300 border-2 border-transparent">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-gray-800">{medicine.name}</h3>
-                      <span className={`badge ${medicine.status === 'In Stock' ? 'badge-green' : 'badge-orange'}`}>
-                        {medicine.status}
-                      </span>
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary-600 mx-auto"></div>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {medicines.length > 0 ? medicines.map((medicine) => (
+                <div key={medicine.id} className="card hover:border-primary-300 border-2 border-transparent transition-all">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <h3 className="text-xl font-bold text-gray-800">{medicine.name}</h3>
+                        <span className={`badge ${medicine.stock > 50 ? 'badge-green' : medicine.stock > 0 ? 'badge-orange' : 'badge-red'}`}>
+                          {medicine.stock > 50 ? 'In Stock' : medicine.stock > 0 ? 'Low Stock' : 'Out of Stock'}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                        {medicine.salt && (
+                          <div>
+                            <span className="text-gray-500">Salt:</span>
+                            <span className="ml-2 font-semibold text-blue-700">{medicine.salt}</span>
+                          </div>
+                        )}
+                        {medicine.type && (
+                          <div>
+                            <span className="text-gray-500">Type:</span>
+                            <span className="ml-2 font-semibold text-purple-700">{medicine.type}</span>
+                          </div>
+                        )}
+                        <div>
+                          <span className="text-gray-500">Category:</span>
+                          <span className="ml-2 font-semibold text-secondary-700">{medicine.category || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Price:</span>
+                          <span className="ml-2 font-semibold text-primary-700">₹{medicine.price}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Stock:</span>
+                          <span className="ml-2 font-semibold">{medicine.stock} units</span>
+                        </div>
+                      </div>
+                      {medicine.description && (
+                        <p className="text-gray-600 text-sm mt-2">{medicine.description}</p>
+                      )}
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-500">Category:</span>
-                        <span className="ml-2 font-semibold text-secondary-700">{medicine.category}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Price:</span>
-                        <span className="ml-2 font-semibold text-primary-700">₹{medicine.price}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Stock:</span>
-                        <span className="ml-2 font-semibold">{medicine.stock} units</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Manufacturer:</span>
-                        <span className="ml-2 font-semibold">{medicine.manufacturer}</span>
-                      </div>
-                    </div>
+                    <button
+                      onClick={() => handleDeleteMedicine(medicine.id)}
+                      className="ml-4 p-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleDeleteMedicine(medicine.id)}
-                    className="ml-4 p-3 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
                 </div>
-              </div>
-            ))}
-          </div>
+              )) : (
+                <div className="text-center py-12 text-gray-500">
+                  <p className="text-lg">No medicines found</p>
+                  <p className="text-sm mt-2">Click "Add Medicine" to get started</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -280,7 +407,7 @@ function AdminDashboard() {
       {activeTab === 'stores' && (
         <div>
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Pharmacy Stores</h2>
+            <h2 className="text-2xl font-bold text-gray-800">🏪 Pharmacy Stores</h2>
             <button
               onClick={() => setShowAddStore(true)}
               className="btn btn-secondary flex items-center gap-2"
@@ -292,94 +419,87 @@ function AdminDashboard() {
             </button>
           </div>
 
-          {/* Add Store Modal */}
           {showAddStore && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-                <h3 className="text-2xl font-bold mb-6 gradient-text">Add New Store</h3>
-                <form onSubmit={handleAddStore}>
-                  <div className="space-y-4">
-                    <input
-                      type="text"
-                      placeholder="Store Name"
-                      className="input"
-                      value={newStore.name}
-                      onChange={(e) => setNewStore({...newStore, name: e.target.value})}
-                      required
-                    />
-                    <input
-                      type="text"
-                      placeholder="Location"
-                      className="input"
-                      value={newStore.location}
-                      onChange={(e) => setNewStore({...newStore, location: e.target.value})}
-                      required
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Contact Number"
-                      className="input"
-                      value={newStore.contact}
-                      onChange={(e) => setNewStore({...newStore, contact: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div className="flex gap-4 mt-6">
-                    <button type="submit" className="btn btn-secondary flex-1">Add Store</button>
-                    <button
-                      type="button"
-                      onClick={() => setShowAddStore(false)}
-                      className="btn btn-outline flex-1"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
+            <AddStore
+              onClose={() => {
+                setShowAddStore(false);
+                fetchStores();
+              }}
+            />
           )}
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {stores.map((store) => (
-              <div key={store.id} className="card hover:border-secondary-300 border-2 border-transparent">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-1">{store.name}</h3>
-                    <span className="badge badge-blue">{store.status}</span>
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-secondary-600 mx-auto"></div>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-6">
+              {stores.length > 0 ? stores.map((store) => (
+                <div key={store.id} className="card hover:border-secondary-300 border-2 border-transparent transition-all">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-800 mb-1">{store.name}</h3>
+                      <span className={`badge ${store.status === 'Active' ? 'badge-green' : 'badge-red'}`}>
+                        {store.status}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteStore(store.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleDeleteStore(store.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <svg className="w-5 h-5 text-secondary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-sm">{store.address}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <svg className="w-5 h-5 text-secondary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                      </svg>
+                      <span className="text-sm font-semibold">{store.city}</span>
+                    </div>
+                    {store.phone && (
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <svg className="w-5 h-5 text-secondary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        <span className="text-sm">{store.phone}</span>
+                      </div>
+                    )}
+                    {store.timings && (
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <svg className="w-5 h-5 text-secondary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm">{store.timings}</span>
+                      </div>
+                    )}
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-gray-500">Location:</span>
+                        <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                          {store.latitude?.toFixed(4)}, {store.longitude?.toFixed(4)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <svg className="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span>{store.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <svg className="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    <span>{store.contact}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <svg className="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                    </svg>
-                    <span>{store.medicines} medicines available</span>
-                  </div>
+              )) : (
+                <div className="col-span-2 text-center py-12 text-gray-500">
+                  <p className="text-lg">No stores found</p>
+                  <p className="text-sm mt-2">Click "Add Store" to get started</p>
                 </div>
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

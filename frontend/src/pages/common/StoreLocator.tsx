@@ -2,6 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import axios from 'axios';
+
+const API_BASE_URL = 'http://localhost:8080/api';
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -27,87 +30,39 @@ function StoreLocator() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [stores, setStores] = useState([]);
+  const [loading, setLoading] = useState(false);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
-  
-  // Store locations in Uttarakhand (Haldwani, Bhimtal, Nainital)
-  const stores = [
-    {
-      id: 1,
-      name: 'MediPlus Pharmacy',
-      city: 'Haldwani',
-      address: 'Mall Road, Haldwani, Uttarakhand - 263139',
-      phone: '+91-9876543210',
-      position: [29.2183, 79.5130],
-      timings: '8:00 AM - 10:00 PM',
-      medicines: 450,
-      color: 'primary'
-    },
-    {
-      id: 2,
-      name: 'HealthCare Store',
-      city: 'Haldwani',
-      address: 'Bhotia Parao, Haldwani, Uttarakhand - 263139',
-      phone: '+91-9876543211',
-      position: [29.2250, 79.5200],
-      timings: '7:00 AM - 11:00 PM',
-      medicines: 380,
-      color: 'secondary'
-    },
-    {
-      id: 3,
-      name: 'WellCare Pharmacy',
-      city: 'Nainital',
-      address: 'Mall Road, Nainital, Uttarakhand - 263001',
-      phone: '+91-9876543212',
-      position: [29.3919, 79.4542],
-      timings: '9:00 AM - 9:00 PM',
-      medicines: 520,
-      color: 'accent'
-    },
-    {
-      id: 4,
-      name: 'CureCare Medicals',
-      city: 'Nainital',
-      address: 'Tallital, Nainital, Uttarakhand - 263002',
-      phone: '+91-9876543213',
-      position: [29.3803, 79.4636],
-      timings: '8:00 AM - 10:00 PM',
-      medicines: 400,
-      color: 'primary'
-    },
-    {
-      id: 5,
-      name: 'Bhimtal Medical Store',
-      city: 'Bhimtal',
-      address: 'Main Market, Bhimtal, Uttarakhand - 263136',
-      phone: '+91-9876543214',
-      position: [29.3488, 79.5595],
-      timings: '8:00 AM - 9:00 PM',
-      medicines: 320,
-      color: 'secondary'
-    },
-    {
-      id: 6,
-      name: 'Lakeside Pharmacy',
-      city: 'Bhimtal',
-      address: 'Near Bhimtal Lake, Bhimtal, Uttarakhand - 263136',
-      phone: '+91-9876543215',
-      position: [29.3520, 79.5640],
-      timings: '7:30 AM - 10:00 PM',
-      medicines: 280,
-      color: 'accent'
-    }
-  ];
 
-  const cities = ['All', 'Haldwani', 'Nainital', 'Bhimtal'];
+  // Fetch stores from database
+  useEffect(() => {
+    fetchStores();
+  }, []);
+
+  const fetchStores = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/stores/active`);
+      setStores(response.data);
+    } catch (error) {
+      console.error('Error fetching stores:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get unique cities from stores
+  const cities = ['All', ...new Set(stores.map(store => store.city))];
   
   const filteredStores = selectedCity === 'All' 
     ? stores 
     : stores.filter(store => store.city === selectedCity);
 
-  // Center map on Uttarakhand region
-  const mapCenter = [29.3, 79.5];
+  // Center map on first store or default location
+  const mapCenter = stores.length > 0 
+    ? [stores[0].latitude, stores[0].longitude] 
+    : [29.3, 79.5];
   const mapZoom = 10;
 
   // Fetch search suggestions as user types
@@ -218,22 +173,18 @@ function StoreLocator() {
     }
   };
 
-  const getColorClass = (color) => {
-    const colors = {
-      primary: 'from-primary-500 to-primary-600',
-      secondary: 'from-secondary-500 to-secondary-600',
-      accent: 'from-accent-500 to-accent-600'
-    };
-    return colors[color] || colors.primary;
+  const getColorClass = (index) => {
+    const colors = [
+      'from-primary-500 to-primary-600',
+      'from-secondary-500 to-secondary-600',
+      'from-accent-500 to-accent-600'
+    ];
+    return colors[index % colors.length];
   };
 
-  const getBadgeColor = (color) => {
-    const colors = {
-      primary: 'badge-green',
-      secondary: 'badge-blue',
-      accent: 'badge-orange'
-    };
-    return colors[color] || 'badge-green';
+  const getBadgeColor = (index) => {
+    const colors = ['badge-green', 'badge-blue', 'badge-orange'];
+    return colors[index % colors.length];
   };
 
   return (
@@ -272,7 +223,7 @@ function StoreLocator() {
         <h3 className="text-lg font-bold text-gray-800 mb-4">Interactive Map</h3>
         
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="mb-4 relative z-[1000]">
+        <form onSubmit={handleSearch} className="mb-4 relative z-10">
           <div className="flex gap-2">
             <div className="flex-1 relative">
               <input
@@ -297,7 +248,7 @@ function StoreLocator() {
               
               {/* Search Suggestions Dropdown */}
               {showSuggestions && searchSuggestions.length > 0 && (
-                <div className="absolute z-[9999] w-full mt-2 bg-white rounded-xl shadow-2xl border-2 border-gray-200 max-h-60 overflow-y-auto">
+                <div className="absolute z-40 w-full mt-2 bg-white rounded-xl shadow-2xl border-2 border-gray-200 max-h-60 overflow-y-auto">
                   {searchSuggestions.map((suggestion, index) => (
                     <button
                       key={index}
@@ -349,14 +300,14 @@ function StoreLocator() {
             
             {/* Store markers */}
             {filteredStores.map((store) => (
-              <Marker key={store.id} position={store.position}>
+              <Marker key={store.id} position={[store.latitude, store.longitude]}>
                 <Popup>
                   <div className="p-2">
                     <h3 className="font-bold text-lg text-gray-800 mb-2">{store.name}</h3>
                     <p className="text-sm text-gray-600 mb-1">📍 {store.address}</p>
                     <p className="text-sm text-gray-600 mb-1">📞 {store.phone}</p>
                     <p className="text-sm text-gray-600 mb-1">🕐 {store.timings}</p>
-                    <p className="text-sm font-semibold text-primary-600">💊 {store.medicines} medicines available</p>
+                    <p className="text-sm font-semibold text-primary-600">💊 {store.medicineCount || 0} medicines available</p>
                   </div>
                 </Popup>
               </Marker>
@@ -397,12 +348,12 @@ function StoreLocator() {
       <div>
         <h3 className="text-2xl font-bold text-gray-800 mb-6">All Stores</h3>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredStores.map((store) => (
+          {filteredStores.map((store, index) => (
             <div key={store.id} className="medicine-card">
               {/* Card Header */}
-              <div className={`bg-gradient-to-r ${getColorClass(store.color)} p-6 text-white`}>
+              <div className={`bg-gradient-to-r ${getColorClass(index)} p-6 text-white`}>
                 <div className="flex justify-between items-start mb-3">
-                  <span className={`badge ${getBadgeColor(store.color)} bg-white bg-opacity-90`}>
+                  <span className={`badge ${getBadgeColor(index)} bg-white bg-opacity-90`}>
                     {store.city}
                   </span>
                   <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
@@ -440,7 +391,7 @@ function StoreLocator() {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                     </svg>
-                    <span>{store.medicines} medicines available</span>
+                    <span>{store.medicineCount || 0} medicines available</span>
                   </div>
                 </div>
 

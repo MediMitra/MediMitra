@@ -35,4 +35,12 @@ public class OrderController {
             @RequestBody CheckoutRequest request) {
         return ResponseEntity.ok(orderService.checkout(user, request));
     }
+
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<Void> deleteOrder(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long orderId) {
+        orderService.deleteUserOrder(orderId, user.getId());
+        return ResponseEntity.ok().build();
+    }
 }

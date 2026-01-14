@@ -49,4 +49,11 @@ public class MedicineController {
         medicineService.deleteMedicine(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/stock")
+    public ResponseEntity<Medicine> updateMedicineStock(@PathVariable Long id, @RequestParam int stock) {
+        Medicine medicine = medicineService.getMedicineById(id);
+        medicine.setStock(stock);
+        return ResponseEntity.ok(medicineService.updateMedicine(id, medicine));
+    }
 }

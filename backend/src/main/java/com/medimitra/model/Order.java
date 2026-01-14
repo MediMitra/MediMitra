@@ -32,6 +32,10 @@ public class Order {
     @JoinColumn(name = "address_id", nullable = false)
     private Address address;
 
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    private Store store;
+
     @Column(nullable = false)
     private BigDecimal totalAmount;
 
@@ -59,6 +63,6 @@ public class Order {
     }
 
     public enum OrderStatus {
-        PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED
+        PENDING, RECEIVED, DELIVERED, CANCELLED
     }
 }

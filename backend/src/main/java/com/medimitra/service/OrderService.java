@@ -5,6 +5,8 @@ import com.medimitra.model.*;
 import com.medimitra.repository.AddressRepository;
 import com.medimitra.repository.CartRepository;
 import com.medimitra.repository.OrderRepository;
+import com.medimitra.repository.StoreRepository;
+import com.medimitra.repository.MedicineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,12 @@ public class OrderService {
 
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private StoreRepository storeRepository;
+
+    @Autowired
+    private MedicineRepository medicineRepository;
 
     public List<Order> getUserOrders(User user) {
         return orderRepository.findByUserOrderByCreatedAtDesc(user);
@@ -91,6 +99,30 @@ public class OrderService {
 
         order.setTotalAmount(totalAmount);
         
+        // Assign store
+        if (request.getStoreId() != null) {
+            Store store = storeRepository.findById(request.getStoreId())
+                    .orElseThrow(() -> new RuntimeException("Store not found"));
+            order.setStore(store);
+        } else {
+            // Assign closest active store
+            Store closestStore = findClosestStore(address);
+            if (closestStore != null) {
+                order.setStore(closestStore);
+            }
+        }
+        
+        // Decrease medicine stock
+        for (OrderItem orderItem : order.getItems()) {
+            Medicine medicine = orderItem.getMedicine();
+            int newStock = medicine.getStock() - orderItem.getQuantity();
+            if (newStock < 0) {
+                throw new RuntimeException("Insufficient stock for " + medicine.getName());
+            }
+            medicine.setStock(newStock);
+            medicineRepository.save(medicine);
+        }
+        
         // Save order first (this will cascade save the items)
         Order savedOrder = orderRepository.save(order);
 
@@ -103,5 +135,77 @@ public class OrderService {
         }
 
         return savedOrder;
+    }
+    
+    private Store findClosestStore(Address address) {
+        List<Store> activeStores = storeRepository.findByStatus("Active");
+        if (activeStores.isEmpty()) {
+            return null;
+        }
+        
+        // Simple distance calculation (can be improved with actual geocoding)
+        Store closestStore = activeStores.get(0);
+        double minDistance = Double.MAX_VALUE;
+        
+        for (Store store : activeStores) {
+            // Simple distance approximation
+            double distance = Math.sqrt(
+                Math.pow(store.getLatitude() - 29.2183, 2) + // Default lat for Haldwani
+                Math.pow(store.getLongitude() - 79.5130, 2)  // Default lon for Haldwani
+            );
+            
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestStore = store;
+            }
+        }
+        
+        return closestStore;
+    }
+    
+    public List<Order> getStoreOrders(Long storeId) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("Store not found"));
+        return orderRepository.findByStoreOrderByCreatedAtDesc(store);
+    }
+    
+    public List<Order> getStoreOrdersByStatus(Long storeId, Order.OrderStatus status) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("Store not found"));
+        return orderRepository.findByStoreAndStatusOrderByCreatedAtDesc(store, status);
+    }
+    
+    public Order updateOrderStatus(Long orderId, Order.OrderStatus status, Long storeId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        
+        if (storeId != null && !order.getStore().getId().equals(storeId)) {
+            throw new RuntimeException("Unauthorized");
+        }
+        
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
+
+    public void deleteStoreOrder(Long orderId, Long storeId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        
+        if (storeId != null && !order.getStore().getId().equals(storeId)) {
+            throw new RuntimeException("Unauthorized: Order does not belong to this store");
+        }
+        
+        orderRepository.delete(order);
+    }
+
+    public void deleteUserOrder(Long orderId, Long userId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        
+        if (!order.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Unauthorized: Order does not belong to this user");
+        }
+        
+        orderRepository.delete(order);
     }
 }

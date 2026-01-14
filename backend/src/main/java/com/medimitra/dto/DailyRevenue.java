@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CheckoutRequest {
-    private Long addressId;
-    private String paymentMethod;
-    private Long storeId;
+public class DailyRevenue {
+    private String date;
+    private Double revenue;
 }

@@ -40,6 +40,11 @@ public class Store {
     @Column(nullable = false)
     private String status = "Active"; // Active, Inactive
 
+    @Column(unique = true)
+    private String email;
+
+    private String password;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

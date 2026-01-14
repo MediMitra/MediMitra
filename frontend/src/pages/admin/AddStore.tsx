@@ -7,6 +7,7 @@ import axios from 'axios';
 const API_BASE_URL = 'http://localhost:8080/api';
 
 // Fix for default marker icons
+// @ts-ignore
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -278,7 +279,7 @@ function AddStore({ onClose }) {
                 
                 <div className="rounded-2xl overflow-hidden border-2 border-gray-300 relative z-0" style={{ height: '400px' }}>
                   <MapContainer
-                    center={position}
+                    center={position as [number, number]}
                     zoom={13}
                     style={{ height: '100%', width: '100%', position: 'relative', zIndex: 0 }}
                     ref={mapRef}
@@ -357,7 +358,7 @@ function AddStore({ onClose }) {
                 onChange={handleChange}
                 placeholder="Full address of the store"
                 className="input resize-none"
-                rows="2"
+                rows={2}
                 required
               />
             </div>

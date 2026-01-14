@@ -201,7 +201,7 @@ function AddMedicine({ onClose }) {
                 onChange={handleChange}
                 placeholder="Brief description of the medicine..."
                 className="input resize-none"
-                rows="3"
+                rows={3}
               />
             </div>
 

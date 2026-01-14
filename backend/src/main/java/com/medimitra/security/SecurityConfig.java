@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/medicines/**").permitAll()
                 .requestMatchers("/api/stores/**").permitAll()
                 .requestMatchers("/api/admin/dashboard/**").permitAll()
+                .requestMatchers("/api/store/orders/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

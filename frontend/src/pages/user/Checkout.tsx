@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addressAPI, orderAPI } from '../../api/api';
+import { addressAPI, orderAPI, storeAPI } from '../../api/api';
 
 const Checkout = () => {
   const [addresses, setAddresses] = useState([]);
+  const [stores, setStores] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState('');
+  const [selectedStore, setSelectedStore] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('COD');
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [newAddress, setNewAddress] = useState({
@@ -21,7 +23,17 @@ const Checkout = () => {
 
   useEffect(() => {
     fetchAddresses();
+    fetchStores();
   }, []);
+
+  const fetchStores = async () => {
+    try {
+      const response = await storeAPI.getAll();
+      setStores(response.data);
+    } catch (error) {
+      console.error('Error fetching stores:', error);
+    }
+  };
 
   const fetchAddresses = async () => {
     try {
@@ -93,10 +105,16 @@ const Checkout = () => {
     }
 
     try {
-      const response = await orderAPI.checkout({
+      const checkoutData: any = {
         addressId: parseInt(selectedAddress),
         paymentMethod
-      });
+      };
+      
+      if (selectedStore) {
+        checkoutData.storeId = parseInt(selectedStore);
+      }
+      
+      const response = await orderAPI.checkout(checkoutData);
       
       // Clear localStorage cart
       localStorage.removeItem('cart');
@@ -226,6 +244,48 @@ const Checkout = () => {
               </div>
             </form>
           )}
+        </div>
+        
+        {/* Store Selection Section */}
+        <div className="card">
+          <h2 className="text-2xl font-semibold mb-4">Select Pharmacy Store</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Choose your preferred pharmacy store. If no store is selected, we will automatically assign the nearest available store.
+          </p>
+          <div className="space-y-2">
+            <label className="flex items-start p-3 border rounded cursor-pointer hover:bg-gray-50">
+              <input
+                type="radio"
+                name="store"
+                value=""
+                checked={selectedStore === ''}
+                onChange={(e) => setSelectedStore(e.target.value)}
+                className="mt-1 mr-3"
+              />
+              <div>
+                <p className="font-medium">Auto-assign nearest store</p>
+                <p className="text-sm text-gray-600">We'll assign the closest available pharmacy to your address</p>
+              </div>
+            </label>
+            {stores.map((store: any) => (
+              <label key={store.id} className="flex items-start p-3 border rounded cursor-pointer hover:bg-gray-50">
+                <input
+                  type="radio"
+                  name="store"
+                  value={store.id}
+                  checked={selectedStore === store.id.toString()}
+                  onChange={(e) => setSelectedStore(e.target.value)}
+                  className="mt-1 mr-3"
+                />
+                <div>
+                  <p className="font-medium">{store.name}</p>
+                  <p className="text-sm text-gray-600">{store.address}</p>
+                  <p className="text-sm text-gray-600">{store.city}, {store.state}</p>
+                  {store.phone && <p className="text-sm text-gray-500">Phone: {store.phone}</p>}
+                </div>
+              </label>
+            ))}
+          </div>
         </div>
         
         {/* Payment Method Section */}

@@ -48,10 +48,27 @@ public class StoreController {
     public ResponseEntity<Store> updateStore(@PathVariable Long id, @RequestBody Store store) {
         return ResponseEntity.ok(storeService.updateStore(id, store));
     }
+    
+    @PutMapping("/{id}/credentials")
+    public ResponseEntity<Store> updateStoreCredentials(
+            @PathVariable Long id,
+            @RequestBody StoreCredentialsRequest request) {
+        return ResponseEntity.ok(storeService.updateStoreCredentials(id, request.getEmail(), request.getPassword()));
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStore(@PathVariable Long id) {
         storeService.deleteStore(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    static class StoreCredentialsRequest {
+        private String email;
+        private String password;
+        
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+        public String getPassword() { return password; }
+        public void setPassword(String password) { this.password = password; }
     }
 }

@@ -9,7 +9,7 @@ import { LoginSelection, LoginAdmin, LoginStore, LoginUser, Register } from './p
 import { Home, Medicines, Cart, Checkout, Orders } from './pages/user';
 
 // Common Pages
-import { Feedback, StoreLocator, PromoBanner } from './pages/common';
+import { Feedback, StoreLocator, PromoBanner, BrowseMedicines } from './pages/common';
 
 // Dashboard Pages
 import { AdminDashboard } from './pages/admin';
@@ -28,7 +28,7 @@ function AppContent() {
         <Routes>
           {/* Public Routes - No Navbar */}
           <Route path="/" element={user ? <Navigate to="/medicines" /> : <PromoBanner />} />
-          <Route path="/login-selection" element={user ? <Navigate to="/medicines" /> : <LoginSelection />} />
+          <Route path="/browse-medicines" element={<BrowseMedicines />} />
           <Route path="/login-admin" element={user ? <Navigate to="/admin" /> : <LoginAdmin />} />
           <Route path="/login-store" element={user ? <Navigate to="/store" /> : <LoginStore />} />
           <Route path="/login-user" element={user ? <Navigate to="/medicines" /> : <LoginUser />} />

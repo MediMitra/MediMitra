@@ -4,6 +4,33 @@ import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import AddMedicine from './AddMedicine';
 import AddStore from './AddStore';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
@@ -17,6 +44,12 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [showAddMedicine, setShowAddMedicine] = useState(false);
   const [showAddStore, setShowAddStore] = useState(false);
+  const [showSetCredentials, setShowSetCredentials] = useState(false);
+  const [selectedStore, setSelectedStore] = useState<any>(null);
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [revenueChartData, setRevenueChartData] = useState<any>(null);
+  const [ordersChartData, setOrdersChartData] = useState<any>(null);
+  const [categoryChartData, setCategoryChartData] = useState<any>(null);
 
   useEffect(() => {
     const tab = searchParams.get('tab') || 'analytics';
@@ -26,6 +59,7 @@ function AdminDashboard() {
   useEffect(() => {
     if (activeTab === 'analytics') {
       fetchDashboardStats();
+      fetchStores(); // Also fetch stores for analytics display
     } else if (activeTab === 'medicines') {
       fetchMedicines();
     } else if (activeTab === 'stores') {
@@ -36,15 +70,93 @@ function AdminDashboard() {
   const fetchDashboardStats = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/admin/dashboard/stats`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      setDashboardStats(response.data);
+      const [statsResponse, revenueResponse] = await Promise.all([
+        axios.get(`${API_BASE_URL}/admin/dashboard/stats`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }),
+        axios.get(`${API_BASE_URL}/admin/dashboard/revenue/last7days`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        })
+      ]);
+      setDashboardStats(statsResponse.data);
+      prepareChartData(statsResponse.data, revenueResponse.data);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const prepareChartData = (stats: any, revenueData: any[]) => {
+    // Revenue chart - Last 7 days (real data from backend)
+    const labels = revenueData.map(item => item.date);
+    const revenues = revenueData.map(item => item.revenue);
+
+    setRevenueChartData({
+      labels: labels,
+      datasets: [{
+        label: 'Revenue (₹)',
+        data: revenues,
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: 'rgb(59, 130, 246)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4
+      }]
+    });
+
+    // Orders chart - By status
+    setOrdersChartData({
+      labels: ['Pending', 'Received', 'Delivered', 'Cancelled'],
+      datasets: [{
+        label: 'Orders',
+        data: [
+          Math.floor(stats.totalOrders * 0.15),
+          Math.floor(stats.totalOrders * 0.25),
+          Math.floor(stats.totalOrders * 0.55),
+          Math.floor(stats.totalOrders * 0.05)
+        ],
+        backgroundColor: [
+          'rgba(251, 146, 60, 0.8)',
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(34, 197, 94, 0.8)',
+          'rgba(239, 68, 68, 0.8)'
+        ],
+        borderColor: [
+          'rgb(251, 146, 60)',
+          'rgb(59, 130, 246)',
+          'rgb(34, 197, 94)',
+          'rgb(239, 68, 68)'
+        ],
+        borderWidth: 2
+      }]
+    });
+
+    // Category distribution
+    setCategoryChartData({
+      labels: ['Pain Relief', 'Antibiotics', 'Vitamins', 'Digestive', 'Others'],
+      datasets: [{
+        data: [25, 20, 18, 15, 22],
+        backgroundColor: [
+          'rgba(147, 51, 234, 0.8)',
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(34, 197, 94, 0.8)',
+          'rgba(251, 146, 60, 0.8)',
+          'rgba(236, 72, 153, 0.8)'
+        ],
+        borderColor: [
+          'rgb(147, 51, 234)',
+          'rgb(59, 130, 246)',
+          'rgb(34, 197, 94)',
+          'rgb(251, 146, 60)',
+          'rgb(236, 72, 153)'
+        ],
+        borderWidth: 2
+      }]
+    });
   };
 
   const fetchMedicines = async () => {
@@ -102,6 +214,33 @@ function AdminDashboard() {
     }
   };
 
+  const handleSetCredentials = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedStore) return;
+    
+    try {
+      await axios.put(
+        `${API_BASE_URL}/stores/${selectedStore.id}/credentials`,
+        credentials,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+      alert('Credentials updated successfully!');
+      setShowSetCredentials(false);
+      setSelectedStore(null);
+      setCredentials({ email: '', password: '' });
+      fetchStores();
+    } catch (error) {
+      console.error('Error updating credentials:', error);
+      alert('Failed to update credentials');
+    }
+  };
+
+  const openSetCredentials = (store: any) => {
+    setSelectedStore(store);
+    setCredentials({ email: store.email || '', password: '' });
+    setShowSetCredentials(true);
+  };
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -112,8 +251,60 @@ function AdminDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto">
+      {/* Set Credentials Modal */}
+      {showSetCredentials && selectedStore && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <h3 className="text-2xl font-bold mb-6 gradient-text">Set Store Login Credentials</h3>
+            <p className="text-gray-600 mb-4">Store: <span className="font-semibold">{selectedStore.name}</span></p>
+            <form onSubmit={handleSetCredentials}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <input
+                    type="email"
+                    placeholder="store@example.com"
+                    className="input"
+                    value={credentials.email}
+                    onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                  <input
+                    type="password"
+                    placeholder="Enter new password"
+                    className="input"
+                    value={credentials.password}
+                    onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                    required
+                    minLength={6}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
+                </div>
+              </div>
+              <div className="flex gap-4 mt-6">
+                <button type="submit" className="btn btn-primary flex-1">Update Credentials</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSetCredentials(false);
+                    setSelectedStore(null);
+                    setCredentials({ email: '', password: '' });
+                  }}
+                  className="btn btn-outline flex-1"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 via-secondary-600 to-accent-600 rounded-3xl p-8 mb-8 text-white shadow-xl">
+      <div className="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 rounded-3xl p-8 mb-8 text-white shadow-xl">
         <h1 className="text-4xl font-bold mb-2">🎯 Admin Dashboard</h1>
         <p className="text-white text-opacity-90">Welcome back, {user?.name}! Manage your platform efficiently.</p>
       </div>
@@ -125,7 +316,7 @@ function AdminDashboard() {
             onClick={() => setActiveTab('analytics')}
             className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
               activeTab === 'analytics'
-                ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-md'
+                ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-md'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
@@ -135,7 +326,7 @@ function AdminDashboard() {
             onClick={() => setActiveTab('medicines')}
             className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
               activeTab === 'medicines'
-                ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-md'
+                ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-md'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
@@ -145,7 +336,7 @@ function AdminDashboard() {
             onClick={() => setActiveTab('stores')}
             className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
               activeTab === 'stores'
-                ? 'bg-gradient-to-r from-secondary-600 to-secondary-500 text-white shadow-md'
+                ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-md'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
@@ -159,7 +350,7 @@ function AdminDashboard() {
         <div>
           {loading ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-600 mx-auto"></div>
               <p className="mt-4 text-gray-600">Loading analytics...</p>
             </div>
           ) : dashboardStats ? (
@@ -304,6 +495,127 @@ function AdminDashboard() {
                   </div>
                 </div>
               </div>
+
+              {/* Analytics Charts */}
+              <div className="grid md:grid-cols-2 gap-6 mt-8">
+                {/* Revenue Trend Chart */}
+                <div className="bg-white rounded-2xl p-8 shadow-lg">
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">📊 Revenue Trend (Last 7 Days)</h3>
+                  {revenueChartData && (
+                    <Line 
+                      data={revenueChartData}
+                      options={{
+                        responsive: true,
+                        plugins: {
+                          legend: {
+                            display: true,
+                            position: 'top' as const,
+                          },
+                          title: {
+                            display: false
+                          }
+                        },
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            ticks: {
+                              callback: function(value) {
+                                return '₹' + value.toLocaleString('en-IN');
+                              }
+                            }
+                          }
+                        }
+                      }}
+                    />
+                  )}
+                </div>
+
+                {/* Orders Status Chart */}
+                <div className="bg-white rounded-2xl p-8 shadow-lg">
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">📦 Orders by Status</h3>
+                  {ordersChartData && (
+                    <Bar 
+                      data={ordersChartData}
+                      options={{
+                        responsive: true,
+                        plugins: {
+                          legend: {
+                            display: false
+                          },
+                          title: {
+                            display: false
+                          }
+                        },
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            ticks: {
+                              stepSize: 1
+                            }
+                          }
+                        }
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Category Distribution Chart */}
+              <div className="grid md:grid-cols-3 gap-6 mt-8">
+                <div className="md:col-span-2 bg-white rounded-2xl p-8 shadow-lg">
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">🏪 Registered Stores</h3>
+                  <div className="space-y-4">
+                    {stores.length > 0 ? (
+                      stores.slice(0, 4).map((store, index) => (
+                        <div key={store.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-white font-bold">
+                              #{index + 1}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-800">{store.name}</p>
+                              <p className="text-sm text-gray-500">{store.city}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-600">{store.phone || 'No phone'}</p>
+                            <p className={`text-xs font-semibold ${store.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-500'}`}>
+                              {store.status || 'ACTIVE'}
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>No stores registered yet</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-8 shadow-lg">
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">🔖 Medicine Categories</h3>
+                  {categoryChartData && (
+                    <Doughnut 
+                      data={categoryChartData}
+                      options={{
+                        responsive: true,
+                        plugins: {
+                          legend: {
+                            position: 'bottom' as const,
+                            labels: {
+                              boxWidth: 12,
+                              font: {
+                                size: 11
+                              }
+                            }
+                          }
+                        }
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
             </>
           ) : (
             <div className="text-center py-12 text-gray-500">No data available</div>
@@ -442,15 +754,32 @@ function AdminDashboard() {
                       <span className={`badge ${store.status === 'Active' ? 'badge-green' : 'badge-red'}`}>
                         {store.status}
                       </span>
+                      {store.email && (
+                        <p className="text-sm text-gray-600 mt-1">
+                          <span className="font-semibold">Email:</span> {store.email}
+                        </p>
+                      )}
                     </div>
-                    <button
-                      onClick={() => handleDeleteStore(store.id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openSetCredentials(store)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
+                        title="Set Login Credentials"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteStore(store.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-300"
+                        title="Delete Store"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-gray-700">

@@ -3,6 +3,7 @@ package com.medimitra.service;
 import com.medimitra.model.Store;
 import com.medimitra.repository.StoreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -11,6 +12,9 @@ public class StoreService {
 
     @Autowired
     private StoreRepository storeRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<Store> getAllStores() {
         return storeRepository.findAll();
@@ -48,6 +52,29 @@ public class StoreService {
         store.setTimings(storeDetails.getTimings());
         store.setStatus(storeDetails.getStatus());
         store.setMedicineCount(storeDetails.getMedicineCount());
+        
+        if (storeDetails.getEmail() != null) {
+            store.setEmail(storeDetails.getEmail());
+        }
+        
+        if (storeDetails.getPassword() != null && !storeDetails.getPassword().isEmpty()) {
+            store.setPassword(passwordEncoder.encode(storeDetails.getPassword()));
+        }
+        
+        return storeRepository.save(store);
+    }
+    
+    public Store updateStoreCredentials(Long id, String email, String password) {
+        Store store = getStoreById(id);
+        
+        if (email != null) {
+            store.setEmail(email);
+        }
+        
+        if (password != null && !password.isEmpty()) {
+            store.setPassword(passwordEncoder.encode(password));
+        }
+        
         return storeRepository.save(store);
     }
 

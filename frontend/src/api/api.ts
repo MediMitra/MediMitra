@@ -79,6 +79,7 @@ export interface Address {
 export interface CheckoutData {
   addressId: number;
   paymentMethod: string;
+  storeId?: number;
 }
 
 export interface Order {
@@ -124,6 +125,7 @@ export const orderAPI = {
   getUserOrders: () => api.get<Order[]>('/orders'),
   getOrderById: (orderId: number) => api.get<Order>(`/orders/${orderId}`),
   checkout: (checkoutData: CheckoutData) => api.post<Order>('/orders/checkout', checkoutData),
+  deleteOrder: (orderId: number) => api.delete(`/orders/${orderId}`),
 };
 
 // Address APIs
@@ -132,6 +134,12 @@ export const addressAPI = {
   createAddress: (addressData: Address) => api.post<Address>('/addresses', addressData),
   updateAddress: (id: number, addressData: Address) => api.put<Address>(`/addresses/${id}`, addressData),
   deleteAddress: (id: number) => api.delete(`/addresses/${id}`),
+};
+
+// Store APIs
+export const storeAPI = {
+  getAll: () => api.get('/stores'),
+  getById: (id: number) => api.get(`/stores/${id}`),
 };
 
 export default api;

@@ -1,5 +1,6 @@
 package com.medimitra.service;
 
+import com.medimitra.dto.DailyRevenue;
 import com.medimitra.dto.DashboardStats;
 import com.medimitra.model.Order;
 import com.medimitra.repository.MedicineRepository;
@@ -14,7 +15,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DashboardService {
@@ -86,6 +91,7 @@ public class DashboardService {
         
         stats.setMonthlyOrders((long) monthlyOrdersList.size());
 
+        @SuppressWarnings("unused")
         BigDecimal monthlyRevenue = monthlyOrdersList.stream()
                 .filter(order -> order.getStatus() != Order.OrderStatus.CANCELLED)
                 .map(Order::getTotalAmount)
@@ -115,5 +121,37 @@ public class DashboardService {
         }
 
         return stats;
+    }
+
+    public List<DailyRevenue> getLast7DaysRevenue() {
+        List<DailyRevenue> dailyRevenueList = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd");
+        
+        // Get all orders from the last 7 days
+        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(6).with(LocalTime.MIN);
+        List<Order> recentOrders = orderRepository.findAll().stream()
+                .filter(order -> order.getCreatedAt().isAfter(sevenDaysAgo))
+                .filter(order -> order.getStatus() != Order.OrderStatus.CANCELLED)
+                .toList();
+        
+        // Group orders by date and calculate revenue for each day
+        for (int i = 6; i >= 0; i--) {
+            LocalDate date = LocalDate.now().minusDays(i);
+            LocalDateTime startOfDay = date.atStartOfDay();
+            LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+            
+            BigDecimal dayRevenue = recentOrders.stream()
+                    .filter(order -> order.getCreatedAt().isAfter(startOfDay) && 
+                                   order.getCreatedAt().isBefore(endOfDay))
+                    .map(Order::getTotalAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            dailyRevenueList.add(new DailyRevenue(
+                    date.format(formatter),
+                    dayRevenue.doubleValue()
+            ));
+        }
+        
+        return dailyRevenueList;
     }
 }

@@ -78,13 +78,13 @@ export default function PromoBanner() {
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <button
-              onClick={() => navigate('/login-user')}
+              onClick={() => navigate('/browse-medicines')}
               className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-8 py-3 rounded-lg text-base font-medium hover:shadow-xl transition-all shadow-md transform hover:-translate-y-0.5"
             >
               Browse Medicines
             </button>
             <button
-              onClick={() => navigate('/login-selection')}
+              onClick={() => navigate('/login-user')}
               className="bg-white/90 backdrop-blur-sm border-2 border-orange-300 text-gray-800 px-8 py-3 rounded-lg text-base font-medium hover:bg-white hover:shadow-lg transition-all transform hover:-translate-y-0.5"
             >
               Get Started

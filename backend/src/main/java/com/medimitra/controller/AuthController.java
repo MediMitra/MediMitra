@@ -1,6 +1,5 @@
 package com.medimitra.controller;
 
-import com.medimitra.dto.ApiResponse;
 import com.medimitra.dto.AuthResponse;
 import com.medimitra.dto.LoginRequest;
 import com.medimitra.dto.RegisterRequest;

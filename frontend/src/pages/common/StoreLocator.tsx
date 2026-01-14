@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useState, useRef, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -11,8 +11,24 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+// Component to handle map clicks
+function MapClickHandler({ onMapClick }) {
+  useMapEvents({
+    click: (e) => {
+      onMapClick(e.latlng);
+    },
+  });
+  return null;
+}
+
 function StoreLocator() {
   const [selectedCity, setSelectedCity] = useState('All');
+  const [clickedLocation, setClickedLocation] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
   
   // Store locations in Uttarakhand (Haldwani, Bhimtal, Nainital)
   const stores = [
@@ -94,6 +110,114 @@ function StoreLocator() {
   const mapCenter = [29.3, 79.5];
   const mapZoom = 10;
 
+  // Fetch search suggestions as user types
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchQuery.trim().length < 3) {
+        setSearchSuggestions([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&accept-language=en&limit=5`
+        );
+        const data = await response.json();
+        setSearchSuggestions(data);
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+      }
+    };
+
+    const timeoutId = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  // Handle map click
+  const handleMapClick = async (latlng) => {
+    try {
+      // Fetch location details using reverse geocoding (Nominatim API)
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}&accept-language=en`
+      );
+      const data = await response.json();
+      
+      setClickedLocation({
+        position: [latlng.lat, latlng.lng],
+        address: data.display_name || 'Address not available',
+        name: data.name || 'Unknown Location',
+        shouldOpenPopup: true
+      });
+    } catch (error) {
+      console.error('Error fetching location details:', error);
+      setClickedLocation({
+        position: [latlng.lat, latlng.lng],
+        address: 'Unable to fetch address',
+        name: 'Custom Location',
+        shouldOpenPopup: true
+      });
+    }
+  };
+
+  // Handle search
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    try {
+      // Search using Nominatim API with English language
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&accept-language=en&limit=1`
+      );
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        const location = data[0];
+        const newPosition = [parseFloat(location.lat), parseFloat(location.lon)];
+        
+        // Update clicked location
+        setClickedLocation({
+          position: newPosition,
+          address: location.display_name,
+          name: location.name || searchQuery,
+          shouldOpenPopup: true
+        });
+
+        // Pan map to the searched location
+        if (mapRef.current) {
+          mapRef.current.setView(newPosition, 13);
+        }
+        
+        setShowSuggestions(false);
+      } else {
+        alert('Location not found. Please try a different search term.');
+      }
+    } catch (error) {
+      console.error('Error searching location:', error);
+      alert('Error searching location. Please try again.');
+    }
+  };
+
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion) => {
+    const newPosition = [parseFloat(suggestion.lat), parseFloat(suggestion.lon)];
+    
+    setClickedLocation({
+      position: newPosition,
+      address: suggestion.display_name,
+      name: suggestion.name || suggestion.display_name.split(',')[0],
+      shouldOpenPopup: true
+    });
+
+    setSearchQuery(suggestion.display_name);
+    setShowSuggestions(false);
+
+    // Pan map to the selected location
+    if (mapRef.current) {
+      mapRef.current.setView(newPosition, 13);
+    }
+  };
+
   const getColorClass = (color) => {
     const colors = {
       primary: 'from-primary-500 to-primary-600',
@@ -146,17 +270,84 @@ function StoreLocator() {
       {/* Map Section */}
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
         <h3 className="text-lg font-bold text-gray-800 mb-4">Interactive Map</h3>
-        <div className="rounded-2xl overflow-hidden shadow-lg" style={{ height: '500px' }}>
+        
+        {/* Search Bar */}
+        <form onSubmit={handleSearch} className="mb-4 relative z-[1000]">
+          <div className="flex gap-2">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                placeholder="Search for a location (e.g., Haldwani, India)"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 transition-all relative z-10"
+              />
+              <svg 
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10"
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              
+              {/* Search Suggestions Dropdown */}
+              {showSuggestions && searchSuggestions.length > 0 && (
+                <div className="absolute z-[9999] w-full mt-2 bg-white rounded-xl shadow-2xl border-2 border-gray-200 max-h-60 overflow-y-auto">
+                  {searchSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-all border-b border-gray-100 last:border-b-0"
+                    >
+                      <div className="flex items-start gap-2">
+                        <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-gray-800">{suggestion.name || suggestion.display_name.split(',')[0]}</p>
+                          <p className="text-xs text-gray-500 line-clamp-1">{suggestion.display_name}</p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button
+              type="submit"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+            >
+              Search
+            </button>
+          </div>
+        </form>
+
+        <p className="text-sm text-gray-600 mb-4">
+          💡 Click anywhere on the map to view location details
+        </p>
+
+        <div className="rounded-2xl overflow-hidden shadow-lg relative z-0" style={{ height: '500px' }}>
           <MapContainer 
             center={mapCenter} 
             zoom={mapZoom} 
-            style={{ height: '100%', width: '100%' }}
+            style={{ height: '100%', width: '100%', position: 'relative', zIndex: 0 }}
             scrollWheelZoom={true}
+            ref={mapRef}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            <MapClickHandler onMapClick={handleMapClick} />
+            
+            {/* Store markers */}
             {filteredStores.map((store) => (
               <Marker key={store.id} position={store.position}>
                 <Popup>
@@ -170,6 +361,34 @@ function StoreLocator() {
                 </Popup>
               </Marker>
             ))}
+
+            {/* Clicked location marker */}
+            {clickedLocation && (
+              <Marker 
+                position={clickedLocation.position}
+                ref={markerRef}
+                eventHandlers={{
+                  add: (e) => {
+                    // Automatically open popup when marker is added
+                    if (clickedLocation.shouldOpenPopup) {
+                      setTimeout(() => {
+                        e.target.openPopup();
+                      }, 100);
+                    }
+                  }
+                }}
+              >
+                <Popup>
+                  <div className="p-2">
+                    <h3 className="font-bold text-lg text-blue-600 mb-2">📍 {clickedLocation.name}</h3>
+                    <p className="text-sm text-gray-600">{clickedLocation.address}</p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Coordinates: {clickedLocation.position[0].toFixed(4)}, {clickedLocation.position[1].toFixed(4)}
+                    </p>
+                  </div>
+                </Popup>
+              </Marker>
+            )}
           </MapContainer>
         </div>
       </div>

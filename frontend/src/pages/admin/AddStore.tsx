@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'https://medimitra-backend-xws5.onrender.com/api';
 
 // Fix for default marker icons
 // @ts-ignore

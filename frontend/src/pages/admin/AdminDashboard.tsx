@@ -373,20 +373,6 @@ function AdminDashboard() {
           </button>
         </div>
       </div>
-            💊 Medicines
-          </button>
-          <button
-            onClick={() => setActiveTab('stores')}
-            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
-              activeTab === 'stores'
-                ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-md'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            🏪 Stores
-          </button>
-        </div>
-      </div>
 
       {/* Dashboard Tab */}
       {activeTab === 'analytics' && (

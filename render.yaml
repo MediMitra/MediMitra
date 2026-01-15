@@ -1,11 +1,10 @@
 services:
   - type: web
     name: medimitra-backend
-    env: java
+    runtime: docker
     plan: free
     rootDir: backend
-    buildCommand: ./mvnw clean package -DskipTests || mvn clean package -DskipTests
-    startCommand: java -jar target/medimitra-backend-1.0.0.jar
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: DATABASE_URL
         value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres

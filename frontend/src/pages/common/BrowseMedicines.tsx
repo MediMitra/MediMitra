@@ -51,7 +51,7 @@ function BrowseMedicines() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-primary-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
       {/* Header */}
       <div className="bg-white shadow-lg sticky top-0 z-50">
         <div className="container mx-auto px-4">

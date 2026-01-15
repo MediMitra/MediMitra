@@ -194,6 +194,20 @@ function Orders() {
             {/* Expanded Details */}
             {expandedOrder === order.id && (
               <div className="py-6 border-b-2 border-gray-100 space-y-4">
+                {order.store && (
+                  <div>
+                    <h4 className="font-semibold text-gray-800 mb-2">🏪 Store</h4>
+                    <p className="text-gray-600">
+                      <span className="font-medium">{order.store.name}</span>
+                      {order.store.address && ` - ${order.store.address}`}
+                      {order.store.phone && (
+                        <span className="block text-sm text-gray-500 mt-1">
+                          📞 {order.store.phone}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                )}
                 <div>
                   <h4 className="font-semibold text-gray-800 mb-2">Delivery Address</h4>
                   <p className="text-gray-600">

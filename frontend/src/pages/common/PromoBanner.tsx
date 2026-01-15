@@ -60,38 +60,38 @@ export default function PromoBanner() {
       <div className="absolute top-20 right-0 w-96 h-96 bg-gradient-to-br from-orange-300/30 to-orange-200/30 rounded-full blur-3xl"></div>
       
       {/* Hero Section */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-        <div className="text-center mb-20">
-          <div className="inline-block mb-6">
-            <span className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-10 sm:pb-16">
+        <div className="text-center mb-12 sm:mb-20">
+          <div className="inline-block mb-4 sm:mb-6">
+            <span className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-medium shadow-lg">
               ✨ India's Most Trusted Healthcare Platform
             </span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-gray-900">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 text-gray-900">
             Welcome to <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">MediMitra</span>
           </h1>
-          <p className="text-xl md:text-2xl mb-6 text-gray-700 font-medium">
+          <p className="text-lg sm:text-xl md:text-2xl mb-4 sm:mb-6 text-gray-700 font-medium">
             Your Trusted Partner in Healthcare
           </p>
-          <p className="text-base mb-12 text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base mb-8 sm:mb-12 text-gray-600 max-w-2xl mx-auto leading-relaxed px-4">
             Access quality medicines from verified pharmacies, delivered to your doorstep with care and precision.
           </p>
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center px-4">
             <button
               onClick={() => navigate('/browse-medicines')}
-              className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-8 py-3 rounded-lg text-base font-medium hover:shadow-xl transition-all shadow-md transform hover:-translate-y-0.5"
+              className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-6 sm:px-8 py-3 rounded-lg text-sm sm:text-base font-medium hover:shadow-xl transition-all shadow-md transform hover:-translate-y-0.5 w-full sm:w-auto"
             >
               Browse Medicines
             </button>
             <button
               onClick={() => navigate('/login-user')}
-              className="bg-white/90 backdrop-blur-sm border-2 border-orange-300 text-gray-800 px-8 py-3 rounded-lg text-base font-medium hover:bg-white hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+              className="bg-white/90 backdrop-blur-sm border-2 border-orange-300 text-gray-800 px-6 sm:px-8 py-3 rounded-lg text-sm sm:text-base font-medium hover:bg-white hover:shadow-lg transition-all transform hover:-translate-y-0.5 w-full sm:w-auto"
             >
               Get Started
             </button>
             <button
               onClick={() => navigate('/store-locator')}
-              className="bg-white/70 backdrop-blur-sm border-2 border-orange-200 text-orange-600 px-8 py-3 rounded-lg text-base font-medium hover:bg-white hover:border-orange-400 transition-all transform hover:-translate-y-0.5"
+              className="bg-white/70 backdrop-blur-sm border-2 border-orange-200 text-orange-600 px-6 sm:px-8 py-3 rounded-lg text-sm sm:text-base font-medium hover:bg-white hover:border-orange-400 transition-all transform hover:-translate-y-0.5 w-full sm:w-auto"
             >
               Find Stores
             </button>

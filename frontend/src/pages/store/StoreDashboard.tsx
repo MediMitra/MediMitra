@@ -315,7 +315,7 @@ function StoreDashboard() {
                 </div>
               </div>
 
-              <div className="flex gap-2 items-center">
+              <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                 <input
                   type="number"
                   value={editingStock[medicine.id] ?? medicine.stock}
@@ -325,10 +325,10 @@ function StoreDashboard() {
                 />
                 <button
                   onClick={() => updateMedicineStock(medicine.id, editingStock[medicine.id] ?? medicine.stock)}
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary btn-sm whitespace-nowrap"
                   disabled={editingStock[medicine.id] === undefined}
                 >
-                  Update
+                  Update Stock
                 </button>
               </div>
             </div>

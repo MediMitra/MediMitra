@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: 'https://medimitra-backend-xws5.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
   },

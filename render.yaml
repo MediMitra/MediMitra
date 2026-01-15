@@ -2,6 +2,7 @@ services:
   - type: web
     name: medimitra-backend
     runtime: java
+    rootDir: backend
     buildCommand: mvn clean package -DskipTests
     startCommand: java -jar target/medimitra-backend-1.0.0.jar
     envVars:

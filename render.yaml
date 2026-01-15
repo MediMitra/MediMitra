@@ -8,14 +8,14 @@ services:
     startCommand: java -jar target/medimitra-backend-1.0.0.jar
     envVars:
       - key: DATABASE_URL
-        sync: false
+        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres
       - key: DB_USERNAME
-        sync: false
+        value: postgres.thcfrsehlyxrpwvmwcdy
       - key: DB_PASSWORD
-        sync: false
+        value: Dheeraj@#123
       - key: JWT_SECRET
-        generateValue: true
+        value: 5v8y/B?E(H+MbQeThWmZq4t7w!z$C&F)J@NcRfUjXn2r5u8x/A%D*G-KaPdSgVkY
       - key: CORS_ALLOWED_ORIGINS
-        sync: false
+        value: https://your-frontend-url.vercel.app
       - key: SHOW_SQL
         value: false

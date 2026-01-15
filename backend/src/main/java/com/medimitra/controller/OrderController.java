@@ -22,6 +22,15 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getUserOrders(user));
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<Order>> getAllOrders(@AuthenticationPrincipal User user) {
+        // Only admin can access all orders
+        if (user.getRole() != User.Role.ADMIN) {
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(orderService.getAllOrders());
+    }
+
     @GetMapping("/{orderId}")
     public ResponseEntity<Order> getOrderById(
             @AuthenticationPrincipal User user,

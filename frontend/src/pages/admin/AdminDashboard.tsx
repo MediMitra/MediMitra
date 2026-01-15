@@ -41,6 +41,7 @@ function AdminDashboard() {
   const [dashboardStats, setDashboardStats] = useState(null);
   const [medicines, setMedicines] = useState([]);
   const [stores, setStores] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddMedicine, setShowAddMedicine] = useState(false);
   const [showAddStore, setShowAddStore] = useState(false);
@@ -50,6 +51,7 @@ function AdminDashboard() {
   const [revenueChartData, setRevenueChartData] = useState<any>(null);
   const [ordersChartData, setOrdersChartData] = useState<any>(null);
   const [categoryChartData, setCategoryChartData] = useState<any>(null);
+  const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
 
   useEffect(() => {
     const tab = searchParams.get('tab') || 'analytics';
@@ -64,6 +66,8 @@ function AdminDashboard() {
       fetchMedicines();
     } else if (activeTab === 'stores') {
       fetchStores();
+    } else if (activeTab === 'orders') {
+      fetchOrders();
     }
   }, [activeTab]);
 
@@ -181,6 +185,21 @@ function AdminDashboard() {
     } catch (error) {
       console.error('Error fetching stores:', error);
       alert('Failed to fetch stores: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/orders/all`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setOrders(response.data);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      alert('Failed to fetch orders: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
@@ -311,10 +330,10 @@ function AdminDashboard() {
 
       {/* Tabs */}
       <div className="bg-white rounded-2xl shadow-lg p-2 mb-8">
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto">
           <button
             onClick={() => setActiveTab('analytics')}
-            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
+            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 whitespace-nowrap ${
               activeTab === 'analytics'
                 ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-md'
                 : 'text-gray-600 hover:bg-gray-100'
@@ -324,12 +343,36 @@ function AdminDashboard() {
           </button>
           <button
             onClick={() => setActiveTab('medicines')}
-            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
+            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 whitespace-nowrap ${
               activeTab === 'medicines'
                 ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-md'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
+            💊 Medicines
+          </button>
+          <button
+            onClick={() => setActiveTab('stores')}
+            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 whitespace-nowrap ${
+              activeTab === 'stores'
+                ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            🏪 Stores
+          </button>
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 whitespace-nowrap ${
+              activeTab === 'orders'
+                ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            📦 All Orders
+          </button>
+        </div>
+      </div>
             💊 Medicines
           </button>
           <button
@@ -825,6 +868,141 @@ function AdminDashboard() {
                 <div className="col-span-2 text-center py-12 text-gray-500">
                   <p className="text-lg">No stores found</p>
                   <p className="text-sm mt-2">Click "Add Store" to get started</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Orders Tab */}
+      {activeTab === 'orders' && (
+        <div>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">📦 All Store Orders</h2>
+            <p className="text-gray-600 mt-1">View and manage all orders across all stores</p>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading orders...</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {orders.length > 0 ? orders.map((order) => (
+                <div key={order.id} className="card hover:shadow-lg transition-all">
+                  {/* Order Header */}
+                  <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b-2 border-gray-100">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-xl font-bold text-gray-800">Order #{order.id}</h3>
+                        <span className={`badge ${
+                          order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
+                          order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                          order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {order.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN', { 
+                          day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                        }) : '—'}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">Total Amount</p>
+                      <p className="text-2xl font-bold text-orange-600">₹{Number(order.totalAmount || 0).toFixed(2)}</p>
+                    </div>
+                  </div>
+
+                  {/* Order Details Grid */}
+                  <div className="grid md:grid-cols-2 gap-6 py-4">
+                    {/* Customer Info */}
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Customer
+                      </h4>
+                      <p className="text-gray-700">{order.user?.name || 'N/A'}</p>
+                      <p className="text-sm text-gray-500">{order.user?.email || ''}</p>
+                    </div>
+
+                    {/* Store Info */}
+                    <div>
+                      <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        Assigned Store
+                      </h4>
+                      {order.store ? (
+                        <>
+                          <p className="text-gray-700 font-medium">{order.store.name}</p>
+                          <p className="text-sm text-gray-500">{order.store.address}</p>
+                          {order.store.phone && <p className="text-sm text-gray-500">📞 {order.store.phone}</p>}
+                        </>
+                      ) : (
+                        <p className="text-gray-500">Not assigned</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Delivery Address */}
+                  {order.address && (
+                    <div className="py-4 border-t border-gray-100">
+                      <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Delivery Address
+                      </h4>
+                      <p className="text-gray-600 text-sm">
+                        {order.address.fullName}, {order.address.addressLine1}
+                        {order.address.addressLine2 && `, ${order.address.addressLine2}`}, 
+                        {order.address.city}, {order.address.state} - {order.address.zipCode}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Order Items */}
+                  <div className="py-4 border-t border-gray-100">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-gray-800">Items ({order.items?.length || 0})</h4>
+                      <button
+                        onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                        className="text-sm text-orange-600 hover:text-orange-700 font-medium"
+                      >
+                        {expandedOrder === order.id ? 'Hide Details' : 'Show Details'}
+                      </button>
+                    </div>
+                    {expandedOrder === order.id && order.items && (
+                      <div className="space-y-2">
+                        {order.items.map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                              <p className="font-medium text-gray-800">{item.medicine?.name || item.name || 'Item'}</p>
+                              <p className="text-sm text-gray-500">Qty: {item.quantity} × ₹{Number(item.price || 0).toFixed(2)}</p>
+                            </div>
+                            <p className="font-bold text-orange-600">₹{(Number(item.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )) : (
+                <div className="card text-center py-16">
+                  <svg className="w-32 h-32 mx-auto text-gray-300 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-2">No Orders Yet</h3>
+                  <p className="text-gray-600">All store orders will appear here</p>
                 </div>
               )}
             </div>

@@ -20,7 +20,7 @@ public class AdminFixController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PostMapping("/reset-password")
+    @GetMapping("/reset-password")
     public ResponseEntity<Map<String, String>> resetAdminPassword() {
         Map<String, String> response = new HashMap<>();
         

@@ -543,7 +543,7 @@ function Home() {
                 title: 'Admin Portal',
                 subtitle: 'Manage Platform',
                 description: 'Control medicines, stores, and monitor overall platform activities with comprehensive management tools.',
-                link: '/admin',
+                link: '/login-admin',
                 color: 'primary',
               },
               {
@@ -551,7 +551,7 @@ function Home() {
                 title: 'Store Portal',
                 subtitle: 'Manage Inventory',
                 description: 'Track inventory, manage customers, and handle orders efficiently with real-time updates and analytics.',
-                link: '/store',
+                link: '/login-store',
                 color: 'secondary',
               },
               {

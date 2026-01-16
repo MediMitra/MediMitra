@@ -479,31 +479,33 @@ function StoreDashboard() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveTab('orders')}
-              className={`flex-1 py-4 px-8 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 ${
+              className={`flex-1 py-3 md:py-4 px-3 sm:px-6 md:px-8 rounded-xl font-bold text-sm sm:text-base md:text-lg transition-all flex items-center justify-center gap-2 md:gap-3 ${
                 activeTab === 'orders'
                   ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg'
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
-              Orders Management
+              <span className="hidden sm:inline">Orders Management</span>
+              <span className="sm:hidden">Orders</span>
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setActiveTab('inventory')}
-              className={`flex-1 py-4 px-8 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 ${
+              className={`flex-1 py-3 md:py-4 px-3 sm:px-6 md:px-8 rounded-xl font-bold text-sm sm:text-base md:text-lg transition-all flex items-center justify-center gap-2 md:gap-3 ${
                 activeTab === 'inventory'
                   ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg'
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
-              Inventory Management
+              <span className="hidden sm:inline">Inventory Management</span>
+              <span className="sm:hidden">Inventory</span>
             </motion.button>
           </div>
         </motion.div>

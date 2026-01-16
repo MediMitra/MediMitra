@@ -16,7 +16,7 @@ function LoginUser(): JSX.Element {
     
     const result = await login(email, password);
     if (result.success) {
-      if (result.user.role === 'user') {
+      if (result.user.role === 'USER') {
         navigate('/medicines');
       } else {
         setError('Invalid user credentials. Please use customer account.');

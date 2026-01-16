@@ -16,7 +16,7 @@ function LoginStore(): JSX.Element {
     
     const result = await login(email, password);
     if (result.success) {
-      if (result.user.role === 'store') {
+      if (result.user.role === 'STORE') {
         navigate('/store');
       } else {
         setError('Invalid store credentials. Please use store account.');

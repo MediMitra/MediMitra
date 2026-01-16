@@ -196,7 +196,7 @@ function Home() {
                 className="flex flex-wrap gap-6 justify-center"
               >
                 <Link
-                  to={user ? "/medicines" : "/login-selection"}
+                  to={user ? "/medicines" : "/login-user"}
                   className="group bg-medical-teal hover:bg-medical-green text-white px-10 py-5 rounded-lg font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl inline-flex items-center gap-2"
                 >
                   {user ? "Browse Medicines" : "Get Started"}

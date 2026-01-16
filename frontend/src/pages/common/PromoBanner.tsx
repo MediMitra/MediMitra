@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export default function PromoBanner() {
   const navigate = useNavigate();
@@ -54,74 +55,77 @@ export default function PromoBanner() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-orange-100 to-orange-50">
-      {/* Decorative top elements */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-orange-200/30 to-orange-300/30 rounded-full blur-3xl"></div>
-      <div className="absolute top-20 right-0 w-96 h-96 bg-gradient-to-br from-orange-300/30 to-orange-200/30 rounded-full blur-3xl"></div>
-      
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-10 sm:pb-16">
-        <div className="text-center mb-12 sm:mb-20">
-          <div className="inline-block mb-4 sm:mb-6">
-            <span className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-medium shadow-lg">
-              ✨ India's Most Trusted Healthcare Platform
-            </span>
-          </div>
-          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 text-gray-900">
-            Welcome to <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">MediMitra</span>
-          </h1>
-          <p className="text-lg sm:text-xl md:text-2xl mb-4 sm:mb-6 text-gray-700 font-medium">
-            Your Trusted Partner in Healthcare
-          </p>
-          <p className="text-sm sm:text-base mb-8 sm:mb-12 text-gray-600 max-w-2xl mx-auto leading-relaxed px-4">
-            Access quality medicines from verified pharmacies, delivered to your doorstep with care and precision.
-          </p>
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center px-4">
-            <button
-              onClick={() => navigate('/browse-medicines')}
-              className="bg-gradient-to-r from-orange-400 to-orange-600 text-white px-6 sm:px-8 py-3 rounded-lg text-sm sm:text-base font-medium hover:shadow-xl transition-all shadow-md transform hover:-translate-y-0.5 w-full sm:w-auto"
-            >
-              Browse Medicines
-            </button>
-            <button
-              onClick={() => navigate('/login-user')}
-              className="bg-white/90 backdrop-blur-sm border-2 border-orange-300 text-gray-800 px-6 sm:px-8 py-3 rounded-lg text-sm sm:text-base font-medium hover:bg-white hover:shadow-lg transition-all transform hover:-translate-y-0.5 w-full sm:w-auto"
-            >
-              Get Started
-            </button>
-            <button
-              onClick={() => navigate('/store-locator')}
-              className="bg-white/70 backdrop-blur-sm border-2 border-orange-200 text-orange-600 px-6 sm:px-8 py-3 rounded-lg text-sm sm:text-base font-medium hover:bg-white hover:border-orange-400 transition-all transform hover:-translate-y-0.5 w-full sm:w-auto"
-            >
-              Find Stores
-            </button>
-          </div>
-        </div>
-
-        {/* Decorative Divider */}
-        <div className="flex items-center justify-center mb-20">
-          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
-          <div className="mx-4 text-orange-400">✦</div>
-          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
-        </div>
-        {/* Stats Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
-          {stats.map((stat, index) => (
-            <div key={index} className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-300/20 to-orange-500/20 rounded-xl blur-xl group-hover:blur-2xl transition-all"></div>
-              <div className="relative text-center bg-white/80 backdrop-blur-lg rounded-xl p-6 border-2 border-white/60 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
-                <div className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent mb-2">{stat.number}</div>
-                <div className="text-gray-700 font-medium">{stat.label}</div>
-              </div>
+      <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1920')] bg-cover bg-center opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 to-indigo-600/80"></div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="inline-block mb-6">
+              <span className="bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-full text-sm font-semibold shadow-lg border border-white/30">
+                ✨ India's Most Trusted Healthcare Platform
+              </span>
             </div>
-          ))}
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 text-white">
+              Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">MediMitra</span>
+            </h1>
+            <p className="text-2xl md:text-3xl mb-4 text-white font-medium">
+              Your Trusted Partner in Healthcare
+            </p>
+            <p className="text-lg mb-12 text-blue-100 max-w-2xl mx-auto leading-relaxed">
+              Access quality medicines from verified pharmacies, delivered to your doorstep with care and precision.
+            </p>
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/browse-medicines')}
+                className="bg-white text-blue-600 px-8 py-4 rounded-xl text-base font-semibold hover:shadow-2xl transition-all shadow-lg"
+              >
+                Browse Medicines
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/login-user')}
+                className="bg-white/20 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-xl text-base font-semibold hover:bg-white/30 transition-all"
+              >
+                Get Started
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/store-locator')}
+                className="bg-white/10 backdrop-blur-sm border-2 border-white/20 text-white px-8 py-4 rounded-xl text-base font-semibold hover:bg-white/20 transition-all"
+              >
+                Find Stores
+              </motion.button>
+            </div>
+          </motion.div>
         </div>
+      </div>
 
-        {/* Decorative Divider */}
-        <div className="flex items-center justify-center mb-16">
-          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
-          <div className="mx-4 text-orange-400">❖</div>
-          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Stats Section */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ y: -5 }}
+              className="bg-white rounded-2xl p-6 border border-gray-100 shadow-xl hover:shadow-2xl transition-all"
+            >
+              <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">{stat.number}</div>
+              <div className="text-gray-700 font-medium">{stat.label}</div>
+            </motion.div>
+          ))}
         </div>
 
         {/* Features Section */}
@@ -174,108 +178,109 @@ export default function PromoBanner() {
         </div>
 
         {/* Role-Based Quick Access */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent mb-12">Portal Access</h2>
+        <div className="mb-16">
+          <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">Portal Access</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <button onClick={() => navigate('/login-admin')} className="group text-left">
-              <div className="relative overflow-hidden bg-white/80 backdrop-blur-md p-6 rounded-xl border-2 border-orange-200/60 hover:border-orange-400 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-200/30 to-orange-300/30 rounded-full blur-2xl -mr-16 -mt-16"></div>
-                <div className="relative flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">
-                    👨‍💼
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">Admin Portal</h3>
-                    <p className="text-xs text-gray-500">Manage Platform</p>
-                  </div>
+            <motion.button
+              onClick={() => navigate('/login-admin')}
+              whileHover={{ y: -5 }}
+              whileTap={{ scale: 0.98 }}
+              className="group text-left bg-white rounded-2xl shadow-xl border border-gray-100 p-6 hover:shadow-2xl transition-all"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">
+                  👨‍💼
                 </div>
-                <p className="text-gray-600 text-sm mb-4">
-                  Control medicines, stores, and monitor overall platform activities.
-                </p>
-                <div className="flex items-center text-orange-600 font-medium group-hover:gap-2 transition-all">
-                  Access Portal
-                  <svg className="w-5 h-5 ml-1 group-hover:ml-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Admin Portal</h3>
+                  <p className="text-xs text-gray-500">Manage Platform</p>
                 </div>
               </div>
-            </button>
+              <p className="text-gray-600 text-sm mb-4">
+                Control medicines, stores, and monitor overall platform activities.
+              </p>
+              <div className="flex items-center text-red-600 font-medium group-hover:gap-2 transition-all">
+                Access Portal
+                <svg className="w-5 h-5 ml-1 group-hover:ml-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </motion.button>
 
-            <button onClick={() => navigate('/login-store')} className="group text-left">
-              <div className="relative overflow-hidden bg-white/80 backdrop-blur-md p-6 rounded-xl border-2 border-blue-300/60 hover:border-blue-500 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-300/30 to-blue-400/30 rounded-full blur-2xl -mr-16 -mt-16"></div>
-                <div className="relative flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">
-                    🏪
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">Store Portal</h3>
-                    <p className="text-xs text-gray-500">Manage Inventory</p>
-                  </div>
+            <motion.button
+              onClick={() => navigate('/login-store')}
+              whileHover={{ y: -5 }}
+              whileTap={{ scale: 0.98 }}
+              className="group text-left bg-white rounded-2xl shadow-xl border border-gray-100 p-6 hover:shadow-2xl transition-all"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">
+                  🏪
                 </div>
-                <p className="text-gray-600 text-sm mb-4">
-                  Track inventory, manage customers, and handle orders efficiently.
-                </p>
-                <div className="flex items-center text-blue-600 font-medium group-hover:gap-2 transition-all">
-                  Access Portal
-                  <svg className="w-5 h-5 ml-1 group-hover:ml-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Store Portal</h3>
+                  <p className="text-xs text-gray-500">Manage Inventory</p>
                 </div>
               </div>
-            </button>
+              <p className="text-gray-600 text-sm mb-4">
+                Track inventory, manage customers, and handle orders efficiently.
+              </p>
+              <div className="flex items-center text-teal-600 font-medium group-hover:gap-2 transition-all">
+                Access Portal
+                <svg className="w-5 h-5 ml-1 group-hover:ml-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </motion.button>
 
-            <button onClick={() => navigate('/login-user')} className="group text-left">
-              <div className="relative overflow-hidden bg-white/80 backdrop-blur-md p-6 rounded-xl border-2 border-green-300/60 hover:border-green-500 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-300/30 to-green-400/30 rounded-full blur-2xl -mr-16 -mt-16"></div>
-                <div className="relative flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">
-                    👤
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">Customer Portal</h3>
-                    <p className="text-xs text-gray-500">Shop Medicines</p>
-                  </div>
+            <motion.button
+              onClick={() => navigate('/login-user')}
+              whileHover={{ y: -5 }}
+              whileTap={{ scale: 0.98 }}
+              className="group text-left bg-white rounded-2xl shadow-xl border border-gray-100 p-6 hover:shadow-2xl transition-all"
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg">
+                  👤
                 </div>
-                <p className="text-gray-600 text-sm mb-4">
-                  Browse, search, and purchase medicines with ease and convenience.
-                </p>
-                <div className="flex items-center text-green-600 font-medium group-hover:gap-2 transition-all">
-                  Start Shopping
-                  <svg className="w-5 h-5 ml-1 group-hover:ml-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Customer Portal</h3>
+                  <p className="text-xs text-gray-500">Shop Medicines</p>
                 </div>
               </div>
-            </button>
+              <p className="text-gray-600 text-sm mb-4">
+                Browse, search, and purchase medicines with ease and convenience.
+              </p>
+              <div className="flex items-center text-blue-600 font-medium group-hover:gap-2 transition-all">
+                Start Shopping
+                <svg className="w-5 h-5 ml-1 group-hover:ml-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </motion.button>
           </div>
-        </div>
-
-        {/* Final Decorative Divider */}
-        <div className="flex items-center justify-center mb-12">
-          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
-          <div className="mx-4 text-orange-400">✧</div>
-          <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent w-full max-w-md"></div>
         </div>
 
         {/* CTA Section */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-purple-500 to-purple-700 rounded-2xl p-12 text-center text-white shadow-2xl">
-          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-          <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -ml-32 -mt-32"></div>
-          <div className="absolute bottom-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mb-32"></div>
-          <div className="relative">
-            <h2 className="text-3xl font-bold mb-3">Ready to Get Started?</h2>
-            <p className="text-lg mb-8 opacity-95">
-              Join thousands of satisfied customers who trust MediMitra for their healthcare needs
-            </p>
-            <button
-              onClick={() => navigate('/register')}
-              className="bg-white text-purple-600 hover:bg-gray-50 px-10 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              Create Account Now
-            </button>
-          </div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-12 text-center text-white shadow-2xl border border-green-400"
+        >
+          <h2 className="text-4xl font-bold mb-3">Ready to Get Started?</h2>
+          <p className="text-xl mb-8 text-green-50">
+            Join thousands of satisfied customers who trust MediMitra for their healthcare needs
+          </p>
+          <motion.button
+            onClick={() => navigate('/register')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="bg-white text-green-600 hover:bg-gray-50 px-10 py-4 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl"
+          >
+            Create Account Now
+          </motion.button>
+        </motion.div>
       </div>
     </div>
   );

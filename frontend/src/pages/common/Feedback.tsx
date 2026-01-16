@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 function Feedback() {
   const navigate = useNavigate();
@@ -36,10 +37,14 @@ function Feedback() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto px-4 py-12">
       {/* Order Confirmation Banner */}
       {showOrderConfirmation && (
-        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-3xl p-8 mb-8 text-white shadow-xl">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-8 mb-8 text-white shadow-xl border border-green-300">
           <div className="flex items-center justify-center mb-4">
             <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
               <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,28 +67,48 @@ function Feedback() {
               Track Your Order
             </Link>
           </div>
-        </div>
+        </motion.div>
       )}
 
-      {/* Header */}
-      <div className="bg-gradient-to-r from-accent-600 to-primary-600 rounded-3xl p-8 mb-8 text-white shadow-xl">
-        <h1 className="text-4xl font-bold mb-2">💬 We Value Your Feedback</h1>
-        <p className="text-white text-opacity-90">{showOrderConfirmation ? 'Share your shopping experience with us' : 'Help us serve you better by sharing your experience'}</p>
+      {/* Hero Header */}
+      <div className="bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-700 relative overflow-hidden rounded-2xl mb-8">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1920')] bg-cover bg-center opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/80 to-indigo-600/80"></div>
+        
+        <div className="relative z-10 px-8 py-16 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mb-6">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+              <span className="text-white font-semibold">Customer Feedback</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">We Value Your Feedback</h1>
+            <p className="text-xl text-purple-100">{showOrderConfirmation ? 'Share your shopping experience with us' : 'Help us serve you better by sharing your experience'}</p>
+          </motion.div>
+        </div>
       </div>
 
       {submitted ? (
-        <div className="card text-center py-16">
-          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full mb-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-2xl shadow-xl border border-gray-100 text-center py-16 px-8"
+        >
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-full mb-6 shadow-lg">
             <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold gradient-text mb-3">Thank You!</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-3">Thank You!</h2>
           <p className="text-gray-600 text-lg mb-6">Your feedback has been submitted successfully.</p>
           {showOrderConfirmation && (
             <Link 
               to="/orders" 
-              className="btn btn-primary inline-flex items-center gap-2"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -91,9 +116,13 @@ function Feedback() {
               Go to Order Tracking
             </Link>
           )}
-        </div>
+        </motion.div>
       ) : (
-        <div className="card">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8"
+        >
           <form onSubmit={handleSubmit}>
             {/* Rating */}
             <div className="mb-8 text-center pb-8 border-b-2 border-gray-100">
@@ -146,7 +175,7 @@ function Feedback() {
                 <label className="block text-gray-700 font-semibold mb-2">Full Name *</label>
                 <input
                   type="text"
-                  className="input"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   placeholder="Enter your name"
                   value={feedback.name}
                   onChange={(e) => setFeedback({ ...feedback, name: e.target.value })}
@@ -158,7 +187,7 @@ function Feedback() {
                 <label className="block text-gray-700 font-semibold mb-2">Email Address *</label>
                 <input
                   type="email"
-                  className="input"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   placeholder="your.email@example.com"
                   value={feedback.email}
                   onChange={(e) => setFeedback({ ...feedback, email: e.target.value })}
@@ -171,7 +200,7 @@ function Feedback() {
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">Category *</label>
                 <select
-                  className="input"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   value={feedback.category}
                   onChange={(e) => setFeedback({ ...feedback, category: e.target.value })}
                   required
@@ -190,7 +219,7 @@ function Feedback() {
                 <label className="block text-gray-700 font-semibold mb-2">Subject *</label>
                 <input
                   type="text"
-                  className="input"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   placeholder="Brief subject of your feedback"
                   value={feedback.subject}
                   onChange={(e) => setFeedback({ ...feedback, subject: e.target.value })}
@@ -202,7 +231,7 @@ function Feedback() {
             <div className="mb-6">
               <label className="block text-gray-700 font-semibold mb-2">Your Message *</label>
               <textarea
-                className="input min-h-32"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all min-h-32"
                 placeholder="Share your detailed feedback, suggestions, or concerns..."
                 value={feedback.message}
                 onChange={(e) => setFeedback({ ...feedback, message: e.target.value })}
@@ -212,60 +241,81 @@ function Feedback() {
             </div>
 
             <div className="flex gap-4">
-              <button type="submit" className="btn btn-primary flex-1">
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                  Submit Feedback
-                </span>
-              </button>
-              <button
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all shadow-md flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                Submit Feedback
+              </motion.button>
+              <motion.button
                 type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   setFeedback({ name: '', email: '', subject: '', message: '', category: 'General' });
                   setRating(0);
                 }}
-                className="btn btn-outline"
+                className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
               >
                 Reset
-              </button>
+              </motion.button>
             </div>
           </form>
-        </div>
+        </motion.div>
       )}
 
-      {/* FAQ Section */}
+      {/* Contact Section */}
       <div className="mt-12 grid md:grid-cols-3 gap-6">
-        <div className="card border-2 border-primary-200 hover:border-primary-400 transition-colors">
-          <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mb-4">
-            <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 hover:shadow-2xl transition-all"
+        >
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-md">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
-          <h3 className="text-lg font-bold text-gray-800 mb-2">Email Us</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Email Us</h3>
           <p className="text-gray-600 text-sm">support@medimitra.com</p>
-        </div>
+        </motion.div>
 
-        <div className="card border-2 border-secondary-200 hover:border-secondary-400 transition-colors">
-          <div className="w-12 h-12 bg-secondary-100 rounded-xl flex items-center justify-center mb-4">
-            <svg className="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 hover:shadow-2xl transition-all"
+        >
+          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-4 shadow-md">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
           </div>
-          <h3 className="text-lg font-bold text-gray-800 mb-2">Call Us</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Call Us</h3>
           <p className="text-gray-600 text-sm">+91-1800-123-4567</p>
-        </div>
+        </motion.div>
 
-        <div className="card border-2 border-accent-200 hover:border-accent-400 transition-colors">
-          <div className="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center mb-4">
-            <svg className="w-6 h-6 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 hover:shadow-2xl transition-all"
+        >
+          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center mb-4 shadow-md">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-bold text-gray-800 mb-2">Support Hours</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Support Hours</h3>
           <p className="text-gray-600 text-sm">24/7 Available</p>
-        </div>
+        </motion.div>
+      </div>
       </div>
     </div>
   );

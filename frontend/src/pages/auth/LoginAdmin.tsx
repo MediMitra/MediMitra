@@ -16,7 +16,7 @@ function LoginAdmin(): JSX.Element {
     
     const result = await login(email, password);
     if (result.success) {
-      if (result.user.role === 'admin') {
+      if (result.user.role === 'ADMIN') {
         navigate('/admin');
       } else {
         setError('Invalid admin credentials. Please use admin account.');
@@ -103,7 +103,7 @@ function LoginAdmin(): JSX.Element {
                 </div>
               </div>
 
-              <button type="submit" className="w-full bg-gradient-to-r from-medical-red to-red-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg hover:shadow-xl">
+              <button type="submit" className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-6 rounded-lg font-semibold hover:from-red-700 hover:to-red-800 transition-all shadow-lg hover:shadow-xl">
                 Access Admin Dashboard
               </button>
             </form>

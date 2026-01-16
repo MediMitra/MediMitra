@@ -149,7 +149,7 @@ function StoreDashboard() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex gap-3 mb-8 flex-wrap"
+        className="flex gap-2 md:gap-3 mb-6 md:mb-8 flex-wrap"
       >
         {['ALL', 'PENDING', 'RECEIVED', 'DELIVERED', 'CANCELLED'].map((status, index) => (
           <motion.button
@@ -160,7 +160,7 @@ function StoreDashboard() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setStatusFilter(status as any)}
-            className={`px-8 py-3 rounded-xl font-bold transition-all shadow-md ${
+            className={`px-4 sm:px-6 md:px-8 py-2 md:py-3 rounded-xl text-sm md:text-base font-bold transition-all shadow-md ${
               statusFilter === status
                 ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-lg'
                 : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200'
@@ -200,17 +200,17 @@ function StoreDashboard() {
               className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 overflow-hidden"
             >
               {/* Order Header */}
-              <div className="bg-gradient-to-r from-teal-50 to-cyan-50 px-8 py-6 border-b-2 border-gray-100">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-gradient-to-r from-teal-50 to-cyan-50 px-4 sm:px-6 md:px-8 py-4 md:py-6 border-b-2 border-gray-100">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <svg className="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-gray-900">Order #{order.id}</h3>
-                      <p className="text-sm text-gray-600 font-medium">
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Order #{order.id}</h3>
+                      <p className="text-xs sm:text-sm text-gray-600 font-medium">
                         {new Date(order.createdAt).toLocaleDateString('en-IN', {
                           year: 'numeric',
                           month: 'long',
@@ -221,31 +221,31 @@ function StoreDashboard() {
                       </p>
                     </div>
                   </div>
-                  <span className={`px-6 py-3 rounded-xl font-bold text-sm shadow-lg ${getStatusBadgeClass(order.status)}`}>
+                  <span className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-bold text-xs sm:text-sm shadow-lg ${getStatusBadgeClass(order.status)}`}>
                     {order.status}
                   </span>
                 </div>
               </div>
 
-              <div className="px-8 py-6 space-y-5">
+              <div className="px-4 sm:px-6 md:px-8 py-4 md:py-6 space-y-4 md:space-y-5">
                 {/* Customer Info */}
-                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-5 border-2 border-blue-100">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 md:p-5 border-2 border-blue-100">
+                  <div className="flex items-center gap-2 md:gap-3 mb-3">
+                    <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     </div>
-                    <h4 className="font-bold text-gray-900 text-lg">Customer Details</h4>
+                    <h4 className="font-bold text-gray-900 text-base md:text-lg">Customer Details</h4>
                   </div>
-                  <div className="grid grid-cols-1 gap-2 text-sm">
+                  <div className="grid grid-cols-1 gap-2 text-xs sm:text-sm">
                     <div className="flex items-center gap-2">
                       <span className="text-gray-600 font-medium">Name:</span>
-                      <span className="font-bold text-gray-900">{order.user.name}</span>
+                      <span className="font-bold text-gray-900 break-words">{order.user.name}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-gray-600 font-medium">Email:</span>
-                      <span className="font-bold text-gray-900">{order.user.email}</span>
+                      <span className="font-bold text-gray-900 break-all">{order.user.email}</span>
                     </div>
                   </div>
                 </div>
@@ -302,26 +302,26 @@ function StoreDashboard() {
               </div>
 
               {/* Total and Actions */}
-              <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-6 flex justify-between items-center">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-4 sm:px-6 md:px-8 py-4 md:py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg className="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 font-medium">Total Amount</p>
-                    <p className="text-3xl font-bold text-green-600">₹{order.totalAmount.toFixed(2)}</p>
+                    <p className="text-xs sm:text-sm text-gray-600 font-medium">Total Amount</p>
+                    <p className="text-xl sm:text-2xl md:text-3xl font-bold text-green-600">₹{order.totalAmount.toFixed(2)}</p>
                   </div>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-2 md:gap-3 w-full sm:w-auto">
                   {order.status === 'PENDING' && (
                     <>
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => updateOrderStatus(order.id, 'RECEIVED')}
-                        className="px-6 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-xl hover:from-teal-700 hover:to-cyan-700 transition-all font-bold shadow-lg"
+                        className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-xl hover:from-teal-700 hover:to-cyan-700 transition-all font-bold shadow-lg text-sm sm:text-base"
                       >
                         ✓ Mark as Received
                       </motion.button>
@@ -329,7 +329,7 @@ function StoreDashboard() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => updateOrderStatus(order.id, 'CANCELLED')}
-                        className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all font-bold shadow-lg"
+                        className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all font-bold shadow-lg text-sm sm:text-base"
                       >
                         ✕ Cancel Order
                       </motion.button>
@@ -340,7 +340,7 @@ function StoreDashboard() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => updateOrderStatus(order.id, 'DELIVERED')}
-                      className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all font-bold shadow-lg"
+                      className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all font-bold shadow-lg text-sm sm:text-base"
                     >
                       ✓ Mark as Delivered
                     </motion.button>
@@ -350,7 +350,7 @@ function StoreDashboard() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => deleteOrder(order.id)}
-                      className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all font-bold shadow-lg"
+                      className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all font-bold shadow-lg text-sm sm:text-base"
                     >
                       🗑 Delete Record
                     </motion.button>
@@ -453,15 +453,15 @@ function StoreDashboard() {
         >
           <div className="absolute inset-0 bg-black opacity-10"></div>
           <div className="relative z-10">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
               <div>
-                <h1 className="text-5xl font-bold mb-2">Pharmacy Dashboard</h1>
-                <p className="text-white text-opacity-95 text-lg">Welcome, <span className="font-semibold">{user?.name}</span>! Manage orders and inventory.</p>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">Pharmacy Dashboard</h1>
+                <p className="text-white text-opacity-95 text-sm sm:text-base md:text-lg">Welcome, <span className="font-semibold">{user?.name}</span>! Manage orders and inventory.</p>
               </div>
             </div>
           </div>
@@ -472,9 +472,9 @@ function StoreDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl shadow-xl p-2 mb-8 border border-gray-100"
+          className="bg-white rounded-2xl shadow-xl p-2 mb-6 md:mb-8 border border-gray-100"
         >
-          <div className="flex gap-4">
+          <div className="flex gap-2 sm:gap-4">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

@@ -30,8 +30,8 @@ function AppContent() {
       <main className={showNavbar ? "container mx-auto px-4 py-8" : ""}>
         <Routes>
           {/* Public Routes - No Navbar */}
-          <Route path="/" element={user ? <Navigate to="/medicines" /> : <Home />} />
-          <Route path="/home" element={user ? <Navigate to="/medicines" /> : <Home />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/browse-medicines" element={<BrowseMedicines />} />
           <Route path="/login-selection" element={user ? <Navigate to="/medicines" /> : <LoginSelection />} />
           <Route path="/login" element={user ? <Navigate to="/medicines" /> : <LoginSelection />} />

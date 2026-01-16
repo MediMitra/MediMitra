@@ -559,7 +559,7 @@ function Home() {
                 title: 'Customer Portal',
                 subtitle: 'Shop Medicines',
                 description: 'Browse, search, and purchase medicines with ease and convenience from verified pharmacies nationwide.',
-                link: '/medicines',
+                link: '/login-user',
                 color: 'teal',
               },
             ].map((portal, index) => (

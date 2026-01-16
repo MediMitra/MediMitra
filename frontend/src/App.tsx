@@ -33,12 +33,12 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
           <Route path="/browse-medicines" element={<BrowseMedicines />} />
-          <Route path="/login-selection" element={user ? <Navigate to="/medicines" /> : <LoginSelection />} />
-          <Route path="/login" element={user ? <Navigate to="/medicines" /> : <LoginSelection />} />
-          <Route path="/login-admin" element={user ? <Navigate to="/admin" /> : <LoginAdmin />} />
-          <Route path="/login-store" element={user ? <Navigate to="/store" /> : <LoginStore />} />
-          <Route path="/login-user" element={user ? <Navigate to="/medicines" /> : <LoginUser />} />
-          <Route path="/register" element={user ? <Navigate to="/medicines" /> : <Register />} />
+          <Route path="/login-selection" element={<LoginSelection />} />
+          <Route path="/login" element={<LoginSelection />} />
+          <Route path="/login-admin" element={<LoginAdmin />} />
+          <Route path="/login-store" element={<LoginStore />} />
+          <Route path="/login-user" element={<LoginUser />} />
+          <Route path="/register" element={<Register />} />
           
           {/* Public Access Routes */}
           <Route path="/feedback" element={<Feedback />} />

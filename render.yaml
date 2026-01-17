@@ -7,7 +7,7 @@ services:
     dockerfilePath: ./Dockerfile
     envVars:
       - key: DATABASE_URL
-        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require
+        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require&prepareThreshold=0&preparedStatementCacheQueries=0
       - key: DB_USERNAME
         value: postgres.thcfrsehlyxrpwvmwcdy
       - key: DB_PASSWORD
@@ -20,3 +20,5 @@ services:
         value: false
       - key: PORT
         value: 8080
+      - key: SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE
+        value: UTC

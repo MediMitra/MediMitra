@@ -283,7 +283,7 @@ function Feedback() {
             </svg>
           </div>
           <h3 className="text-lg font-bold text-gray-900 mb-2">Email Us</h3>
-          <p className="text-gray-600 text-sm">support@medimitra.com</p>
+          <p className="text-gray-600 text-sm">bisht.dheeraj2004c@gmail.com</p>
         </motion.div>
 
         <motion.div
@@ -298,7 +298,7 @@ function Feedback() {
             </svg>
           </div>
           <h3 className="text-lg font-bold text-gray-900 mb-2">Call Us</h3>
-          <p className="text-gray-600 text-sm">+91-1800-123-4567</p>
+          <p className="text-gray-600 text-sm">+919389788529</p>
         </motion.div>
 
         <motion.div

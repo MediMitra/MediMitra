@@ -104,7 +104,7 @@ function LoginSelection(): JSX.Element {
         >
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 max-w-2xl mx-auto">
             <h4 className="text-lg font-semibold text-gray-900 mb-2">Need Help?</h4>
-            <p className="text-gray-600">If you're having trouble accessing your portal, please contact our support team at <a href="mailto:support@medimitra.com" className="text-primary-600 hover:text-primary-700 font-semibold">support@medimitra.com</a></p>
+            <p className="text-gray-600">If you're having trouble accessing your portal, please contact our support team at <a href="mailto:bisht.dheeraj2004c@gmail.com" className="text-primary-600 hover:text-primary-700 font-semibold">bisht.dheeraj2004c@gmail.com</a></p>
           </div>
         </motion.div>
       </div>

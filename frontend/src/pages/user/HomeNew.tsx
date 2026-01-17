@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 function Home() {
   const { user } = useAuth();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [policyDialogOpen, setPolicyDialogOpen] = useState(false);
+  const [selectedPolicy, setSelectedPolicy] = useState<'privacy' | 'terms' | 'cookie' | 'about' | 'contact' | null>(null);
 
   useEffect(() => {
     AOS.init({
@@ -119,6 +121,157 @@ function Home() {
       text: 'As a healthcare professional, I trust MediMitra for their quality assurance and excellent customer service.',
     },
   ];
+
+  const policyContent = {
+    privacy: {
+      title: 'Privacy Policy',
+      content: `
+        <h3 class="text-xl font-bold mb-4">1. Information We Collect</h3>
+        <p class="mb-4">We collect information you provide directly to us, including name, email address, phone number, delivery address, and payment information when you use our services.</p>
+        
+        <h3 class="text-xl font-bold mb-4">2. How We Use Your Information</h3>
+        <p class="mb-4">We use the information we collect to:</p>
+        <ul class="list-disc ml-6 mb-4">
+          <li>Process and deliver your orders</li>
+          <li>Send you updates about your orders</li>
+          <li>Improve our services and user experience</li>
+          <li>Comply with legal obligations</li>
+        </ul>
+        
+        <h3 class="text-xl font-bold mb-4">3. Data Security</h3>
+        <p class="mb-4">We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.</p>
+        
+        <h3 class="text-xl font-bold mb-4">4. Your Rights</h3>
+        <p class="mb-4">You have the right to access, correct, or delete your personal information. You may also object to processing of your personal data or request restriction of processing.</p>
+        
+        <h3 class="text-xl font-bold mb-4">5. Contact Us</h3>
+        <p class="mb-4">If you have questions about this Privacy Policy, please contact us at bisht.dheeraj2004c@gmail.com</p>
+      `
+    },
+    terms: {
+      title: 'Terms of Service',
+      content: `
+        <h3 class="text-xl font-bold mb-4">1. Acceptance of Terms</h3>
+        <p class="mb-4">By accessing and using MediMitra, you accept and agree to be bound by the terms and provision of this agreement.</p>
+        
+        <h3 class="text-xl font-bold mb-4">2. Use of Service</h3>
+        <p class="mb-4">You agree to use our service only for lawful purposes and in accordance with these Terms. You must not use our service:</p>
+        <ul class="list-disc ml-6 mb-4">
+          <li>In any way that violates applicable laws or regulations</li>
+          <li>To transmit any unauthorized advertising or promotional material</li>
+          <li>To impersonate or attempt to impersonate MediMitra or another user</li>
+        </ul>
+        
+        <h3 class="text-xl font-bold mb-4">3. Prescription Requirements</h3>
+        <p class="mb-4">For prescription medicines, a valid prescription from a licensed healthcare provider is required. We reserve the right to refuse service if proper documentation is not provided.</p>
+        
+        <h3 class="text-xl font-bold mb-4">4. Pricing and Payment</h3>
+        <p class="mb-4">All prices are in Indian Rupees and are subject to change without notice. Payment must be made at the time of order placement.</p>
+        
+        <h3 class="text-xl font-bold mb-4">5. Limitation of Liability</h3>
+        <p class="mb-4">MediMitra shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of our service.</p>
+        
+        <h3 class="text-xl font-bold mb-4">6. Changes to Terms</h3>
+        <p class="mb-4">We reserve the right to modify these terms at any time. Continued use of the service after changes constitutes acceptance of the new terms.</p>
+      `
+    },
+    cookie: {
+      title: 'Cookie Policy',
+      content: `
+        <h3 class="text-xl font-bold mb-4">1. What Are Cookies</h3>
+        <p class="mb-4">Cookies are small text files that are placed on your device when you visit our website. They help us provide you with a better experience.</p>
+        
+        <h3 class="text-xl font-bold mb-4">2. Types of Cookies We Use</h3>
+        <p class="mb-4"><strong>Essential Cookies:</strong> These cookies are necessary for the website to function and cannot be switched off.</p>
+        <p class="mb-4"><strong>Analytics Cookies:</strong> These help us understand how visitors interact with our website by collecting and reporting information anonymously.</p>
+        <p class="mb-4"><strong>Functionality Cookies:</strong> These enable enhanced functionality and personalization, such as remembering your preferences.</p>
+        <p class="mb-4"><strong>Marketing Cookies:</strong> These track your online activity to help advertisers deliver more relevant advertising.</p>
+        
+        <h3 class="text-xl font-bold mb-4">3. Managing Cookies</h3>
+        <p class="mb-4">Most web browsers allow you to control cookies through their settings. However, limiting cookies may impact your experience on our website.</p>
+        
+        <h3 class="text-xl font-bold mb-4">4. Third-Party Cookies</h3>
+        <p class="mb-4">We may use third-party services that also set cookies. These third parties have their own privacy policies.</p>
+        
+        <h3 class="text-xl font-bold mb-4">5. Updates to This Policy</h3>
+        <p class="mb-4">We may update this Cookie Policy from time to time. Please check this page regularly for updates.</p>
+      `
+    },
+    about: {
+      title: 'About Us',
+      content: `
+        <h3 class="text-xl font-bold mb-4">Our Mission</h3>
+        <p class="mb-4">MediMitra is dedicated to providing flexible and accessible healthcare services with quality medicines and expert care. We believe healthcare should be convenient, reliable, and available to everyone.</p>
+        
+        <h3 class="text-xl font-bold mb-4">Who We Are</h3>
+        <p class="mb-4">We are a modern healthcare platform that connects patients with verified pharmacies and quality medicines. Our experienced medical team combines the latest technology with personalized attention to provide exceptional healthcare tailored to your unique needs.</p>
+        
+        <h3 class="text-xl font-bold mb-4">What We Offer</h3>
+        <ul class="list-disc ml-6 mb-4">
+          <li><strong>Prescription Medicines:</strong> Comprehensive management of prescription medications through verified pharmacies</li>
+          <li><strong>Over-The-Counter Products:</strong> Accurate testing and screening services for common health conditions</li>
+          <li><strong>Home Delivery:</strong> Fast and reliable delivery services to your doorstep</li>
+          <li><strong>Expert Consultation:</strong> Healthcare consultation services focusing on holistic wellness</li>
+          <li><strong>Quality Assurance:</strong> All medicines undergo strict quality checks from certified manufacturers</li>
+          <li><strong>24/7 Customer Care:</strong> Round-the-clock support for all your healthcare needs</li>
+        </ul>
+        
+        <h3 class="text-xl font-bold mb-4">Our Values</h3>
+        <p class="mb-4"><strong>Quality:</strong> We ensure all medicines are authentic and sourced from certified pharmacies.</p>
+        <p class="mb-4"><strong>Trust:</strong> Building long-term relationships with our customers through reliable service.</p>
+        <p class="mb-4"><strong>Accessibility:</strong> Making healthcare available to everyone, everywhere, anytime.</p>
+        <p class="mb-4"><strong>Care:</strong> Providing personalized attention and support to every customer.</p>
+        
+        <h3 class="text-xl font-bold mb-4">Our Commitment</h3>
+        <p class="mb-4">We are committed to maintaining the highest standards of service quality, ensuring customer satisfaction, and making healthcare more accessible across India.</p>
+      `
+    },
+    contact: {
+      title: 'Contact Us',
+      content: `
+        <h3 class="text-xl font-bold mb-4">Get In Touch</h3>
+        <p class="mb-4">We're here to help! Reach out to us through any of the following channels:</p>
+        
+        <h3 class="text-xl font-bold mb-4">📍 Location</h3>
+        <p class="mb-4">Haldwani, Nainital, Uttarakhand<br/>India</p>
+        
+        <h3 class="text-xl font-bold mb-4">📧 Email</h3>
+        <p class="mb-4">
+          <a href="mailto:bisht.dheeraj2004c@gmail.com" class="text-primary-600 hover:text-primary-700">bisht.dheeraj2004c@gmail.com</a>
+        </p>
+        <p class="mb-4 text-sm text-gray-600">We typically respond within 24 hours</p>
+        
+        <h3 class="text-xl font-bold mb-4">📞 Phone</h3>
+        <p class="mb-4">
+          <a href="tel:+919389788529" class="text-primary-600 hover:text-primary-700">+91 938 978 8529</a>
+        </p>
+        
+        <h3 class="text-xl font-bold mb-4">⏰ Business Hours</h3>
+        <div class="mb-4">
+          <p class="mb-2"><strong>Monday - Friday:</strong> 9:00 AM - 6:00 PM</p>
+          <p class="mb-2"><strong>Saturday - Sunday:</strong> 8:00 AM - 4:00 PM</p>
+          <p class="text-medical-teal font-semibold"><strong>Emergency Support:</strong> 24/7 Available</p>
+        </div>
+        
+        <h3 class="text-xl font-bold mb-4">💬 Support</h3>
+        <p class="mb-4">For immediate assistance, you can also use the contact form on our platform or reach out through our customer support portal.</p>
+        
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-6">
+          <p class="text-sm text-gray-700"><strong>Note:</strong> For medical emergencies, please contact your local emergency services immediately.</p>
+        </div>
+      `
+    }
+  };
+
+  const openPolicyDialog = (policyType: 'privacy' | 'terms' | 'cookie' | 'about' | 'contact') => {
+    setSelectedPolicy(policyType);
+    setPolicyDialogOpen(true);
+  };
+
+  const closePolicyDialog = () => {
+    setPolicyDialogOpen(false);
+    setSelectedPolicy(null);
+  };
 
   const departmentCategories = [
     'PRESCRIPTION MEDICINES',
@@ -693,13 +846,37 @@ function Home() {
             <div>
               <h3 className="font-heading font-bold text-lg mb-6">Quick Links</h3>
               <ul className="space-y-3">
-                {['Home', 'Medicines', 'Store Locator', 'About Us', 'Contact'].map((link, index) => (
-                  <li key={index}>
-                    <Link to={`/${link.toLowerCase().replace(' ', '-')}`} className="text-gray-400 hover:text-medical-teal transition-colors">
-                      {link}
-                    </Link>
-                  </li>
-                ))}
+                <li>
+                  <Link to="/home" className="text-gray-400 hover:text-medical-teal transition-colors">
+                    Home
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/medicines" className="text-gray-400 hover:text-medical-teal transition-colors">
+                    Medicines
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/store-locator" className="text-gray-400 hover:text-medical-teal transition-colors">
+                    Store Locator
+                  </Link>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => openPolicyDialog('about')}
+                    className="text-gray-400 hover:text-medical-teal transition-colors cursor-pointer"
+                  >
+                    About Us
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => openPolicyDialog('contact')}
+                    className="text-gray-400 hover:text-medical-teal transition-colors cursor-pointer"
+                  >
+                    Contact
+                  </button>
+                </li>
               </ul>
             </div>
 
@@ -723,19 +900,19 @@ function Home() {
                   <svg className="w-5 h-5 text-medical-teal mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   </svg>
-                  <span>India</span>
+                  <span>Haldwani, Nainital, Uttarakhand</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-medical-teal mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <span>info@medimitra.com</span>
+                  <span>bisht.dheeraj2004c@gmail.com</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-medical-teal mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
-                  <span>+91 1234567890</span>
+                  <span>+919389788529</span>
                 </div>
               </div>
             </div>
@@ -747,15 +924,84 @@ function Home() {
               © 2026 MediMitra. Made with ❤️ for better healthcare.
             </p>
             <div className="flex gap-4">
-              {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((item, index) => (
-                <Link key={index} to="#" className="text-gray-400 hover:text-medical-teal text-sm transition-colors">
-                  {item}
-                </Link>
-              ))}
+              <button 
+                onClick={() => openPolicyDialog('privacy')}
+                className="text-gray-400 hover:text-medical-teal text-sm transition-colors cursor-pointer"
+              >
+                Privacy Policy
+              </button>
+              <button 
+                onClick={() => openPolicyDialog('terms')}
+                className="text-gray-400 hover:text-medical-teal text-sm transition-colors cursor-pointer"
+              >
+                Terms of Service
+              </button>
+              <button 
+                onClick={() => openPolicyDialog('cookie')}
+                className="text-gray-400 hover:text-medical-teal text-sm transition-colors cursor-pointer"
+              >
+                Cookie Policy
+              </button>
             </div>
           </div>
         </div>
       </footer>
+
+      {/* Policy Dialog */}
+      <AnimatePresence>
+        {policyDialogOpen && selectedPolicy && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={closePolicyDialog}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-hidden relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header with Close Button */}
+              <div className="bg-gradient-to-r from-primary-600 to-secondary-600 px-8 py-6 flex items-center justify-between sticky top-0 z-10">
+                <h2 className="text-2xl font-bold text-white">
+                  {policyContent[selectedPolicy].title}
+                </h2>
+                <button
+                  onClick={closePolicyDialog}
+                  className="text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200"
+                  aria-label="Close dialog"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="px-8 py-6 overflow-y-auto max-h-[calc(80vh-120px)]">
+                <div 
+                  className="text-gray-700 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: policyContent[selectedPolicy].content }}
+                />
+              </div>
+
+              {/* Footer */}
+              <div className="border-t border-gray-200 px-8 py-4 bg-gray-50 flex justify-end sticky bottom-0">
+                <button
+                  onClick={closePolicyDialog}
+                  className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style>{`
         @keyframes scroll {

@@ -7,9 +7,9 @@ services:
     dockerfilePath: ./Dockerfile
     envVars:
       - key: DATABASE_URL
-        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require&prepareThreshold=0&preparedStatementCacheQueries=0
+        value: jdbc:postgresql://db.thcfrsehlyxrpwvmwcdy.supabase.co:5432/postgres?sslmode=require
       - key: DB_USERNAME
-        value: postgres.thcfrsehlyxrpwvmwcdy
+        value: postgres
       - key: DB_PASSWORD
         value: Dheeraj@#123
       - key: JWT_SECRET

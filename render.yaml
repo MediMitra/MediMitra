@@ -9,7 +9,7 @@ services:
       - key: DATABASE_URL
         value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require&prepareThreshold=0&preparedStatementCacheQueries=0
       - key: DB_USERNAME
-        value: postgres.thcfrsehlyxrpwvmwcdy
+        value: postgres.eevimjlybycmauhlxxjy
       - key: DB_PASSWORD
         value: Dheeraj@#123
       - key: JWT_SECRET

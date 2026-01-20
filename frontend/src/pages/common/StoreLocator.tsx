@@ -3,9 +3,9 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaf
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import axios from 'axios';
-import { API_BASE_URL } from '../../api/api';
 import { motion } from 'framer-motion';
 
+const API_BASE_URL = 'https://medimitra-backend-xws5.onrender.com/api';
 
 // Fix for default marker icons in React-Leaflet
 delete L.Icon.Default.prototype._getIconUrl;

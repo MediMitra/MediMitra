@@ -1,11 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 
-export const API_BASE_URL =
-  (import.meta as any).env?.VITE_API_BASE_URL ||
-  'https://medimitra-backend-xws5.onrender.com/api';
-
 const api: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: 'https://medimitra-backend-xws5.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
   },

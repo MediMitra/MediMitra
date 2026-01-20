@@ -117,9 +117,7 @@ frontend/
 ## 🔄 Backend Integration
 
 When ready to connect backend:
-1. Set `VITE_API_BASE_URL` (must include `/api`). Example: `https://your-backend.onrender.com/api`
-2. For local dev, copy `.env.example` → `.env.local` and edit the value
-3. For Vercel, add `VITE_API_BASE_URL` in Project → Settings → Environment Variables
+1. Update `AuthContext.jsx` with real API calls
 2. Replace mock data with API endpoints
 3. Add authentication tokens
 4. Enable real cart/order functionality

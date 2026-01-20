@@ -20,6 +20,29 @@ public class DebugController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @GetMapping("/health")
+    public ResponseEntity<Map<String, Object>> health() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "UP");
+        response.put("timestamp", System.currentTimeMillis());
+        response.put("service", "medimitra-backend");
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/db-check")
+    public ResponseEntity<Map<String, Object>> dbCheck() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            long count = userRepository.count();
+            response.put("status", "connected");
+            response.put("userCount", count);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("error", e.getMessage());
+        }
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/check-admin")
     public ResponseEntity<Map<String, Object>> checkAdmin() {
         Map<String, Object> response = new HashMap<>();

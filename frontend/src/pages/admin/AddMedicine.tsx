@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { API_BASE_URL } from '../../api/api';
+
+const API_BASE_URL = 'https://medimitra-backend-xws5.onrender.com/api';
 
 const MEDICINE_TYPES = [
   'Pain Relief',

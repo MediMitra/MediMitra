@@ -7,22 +7,20 @@ services:
     dockerfilePath: ./Dockerfile
     envVars:
       - key: JAVA_TOOL_OPTIONS
-        value: -Djava.net.preferIPv4Stack=true
+        value: -Djava.net.preferIPv4Stack=true -Xmx256m
       - key: DATABASE_URL
-        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require&connectTimeout=30&socketTimeout=60&tcpKeepAlive=true&preferQueryMode=simple
-      - key: JDBC_DATABASE_URL
-        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require&connectTimeout=30&socketTimeout=60&tcpKeepAlive=true&preferQueryMode=simple
+        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0&connectTimeout=60&socketTimeout=60&tcpKeepAlive=true
       - key: DB_USERNAME
         value: postgres.thcfrsehlyxrpwvmwcdy
       - key: DB_PASSWORD
-        sync: false
+        value: Dheeraj@#123
       - key: JWT_SECRET
-        generateValue: true
+        value: 5v8y/B?E(H+MbQeThWmZq4t7w!z$C&F)J@NcRfUjXn2r5u8x/A%D*G-KaPdSgVkYp
       - key: CORS_ALLOWED_ORIGINS
-        value: https://medi-mitra-omega.vercel.app,https://*.vercel.app,http://localhost:5173
+        value: https://medi-mitra-omega.vercel.app,https://*.vercel.app,http://localhost:5173,http://localhost:3000
       - key: SHOW_SQL
         value: false
+      - key: LOG_LEVEL
+        value: INFO
       - key: PORT
         value: 8080
-      - key: SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE
-        value: UTC

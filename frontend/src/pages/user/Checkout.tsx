@@ -113,10 +113,16 @@ const Checkout = () => {
         checkoutData.storeId = parseInt(selectedStore);
       }
       
+      console.log('Placing order with data:', checkoutData);
       const response = await orderAPI.checkout(checkoutData);
+      console.log('Checkout response:', response);
+      console.log('Order ID:', response.data?.id);
+      
       localStorage.removeItem('cart');
       alert(`Order placed successfully! Order ID: #${response.data.id}`);
-      navigate('/orders');
+      
+      // Redirect after a short delay
+      setTimeout(() => navigate('/orders'), 1000);
     } catch (error) {
       console.error('Error during checkout:', error);
       alert('Failed to place order. Please try again.');

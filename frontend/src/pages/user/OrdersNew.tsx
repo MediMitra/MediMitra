@@ -12,8 +12,12 @@ function Orders() {
     const fetchOrders = async () => {
       try {
         setLoading(true);
+        console.log('Fetching orders...');
         const response = await orderAPI.getUserOrders();
+        console.log('Orders response:', response);
+        console.log('Orders data:', response.data);
         setOrders(response.data || []);
+        console.log('Orders set:', response.data?.length || 0);
       } catch (err) {
         console.error('Failed to load orders', err);
         setError(err.response?.data?.message || 'Unable to load your orders.');

@@ -36,7 +36,12 @@ public class OrderService {
     private MedicineRepository medicineRepository;
 
     public List<Order> getUserOrders(User user) {
-        return orderRepository.findByUserOrderByCreatedAtDesc(user);
+        System.out.println("=== OrderService.getUserOrders ===");
+        System.out.println("User: ID=" + user.getId() + ", Email=" + user.getEmail());
+        List<Order> orders = orderRepository.findByUserOrderByCreatedAtDesc(user);
+        System.out.println("Found " + orders.size() + " orders");
+        orders.forEach(o -> System.out.println("  Order ID=" + o.getId() + ", Status=" + o.getStatus() + ", Amount=" + o.getTotalAmount()));
+        return orders;
     }
 
     public List<Order> getAllOrders() {
@@ -56,6 +61,10 @@ public class OrderService {
 
     @Transactional
     public Order checkout(User user, CheckoutRequest request) {
+        System.out.println("=== OrderService.checkout ===");
+        System.out.println("User: ID=" + user.getId() + ", Email=" + user.getEmail());
+        System.out.println("Request: AddressID=" + request.getAddressId() + ", StoreID=" + request.getStoreId() + ", PaymentMethod=" + request.getPaymentMethod());
+        
         // Validate checkout request
         if (request.getAddressId() == null) {
             throw new RuntimeException("Address ID is required for checkout");
@@ -129,10 +138,12 @@ public class OrderService {
         
         // Save order first (this will cascade save the items)
         Order savedOrder = orderRepository.save(order);
+        System.out.println("Order saved successfully: ID=" + savedOrder.getId() + ", User=" + savedOrder.getUser().getId());
 
         // Clear cart after successful order creation
         try {
             cartService.clearCart(user);
+            System.out.println("Cart cleared for user: " + user.getId());
         } catch (Exception e) {
             // Log the error but don't fail the order
             System.err.println("Error clearing cart: " + e.getMessage());

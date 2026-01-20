@@ -19,7 +19,11 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<List<Order>> getUserOrders(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(orderService.getUserOrders(user));
+        System.out.println("=== GET /api/orders ===");
+        System.out.println("User: " + (user != null ? "ID=" + user.getId() + ", Email=" + user.getEmail() : "NULL"));
+        List<Order> orders = orderService.getUserOrders(user);
+        System.out.println("Returning " + orders.size() + " orders");
+        return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/all")
@@ -42,7 +46,12 @@ public class OrderController {
     public ResponseEntity<Order> checkout(
             @AuthenticationPrincipal User user,
             @RequestBody CheckoutRequest request) {
-        return ResponseEntity.ok(orderService.checkout(user, request));
+        System.out.println("=== POST /api/orders/checkout ===");
+        System.out.println("User: " + (user != null ? "ID=" + user.getId() + ", Email=" + user.getEmail() : "NULL"));
+        System.out.println("Request: AddressID=" + request.getAddressId() + ", PaymentMethod=" + request.getPaymentMethod());
+        Order order = orderService.checkout(user, request);
+        System.out.println("Order created: ID=" + order.getId() + ", Status=" + order.getStatus());
+        return ResponseEntity.ok(order);
     }
 
     @DeleteMapping("/{orderId}")

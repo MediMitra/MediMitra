@@ -3,8 +3,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import axios from 'axios';
-
-const API_BASE_URL = 'https://medimitra-backend-xws5.onrender.com/api';
+import { API_BASE_URL } from '../../api/api';
 
 // Fix for default marker icons
 // @ts-ignore

@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import { API_BASE_URL } from '../../api/api';
 
-const API_BASE_URL = 'https://medimitra-backend-xws5.onrender.com/api';
 
 interface Order {
   id: number;

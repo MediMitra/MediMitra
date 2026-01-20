@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { API_BASE_URL } from '../../api/api';
 import AddMedicine from './AddMedicine';
 import AddStore from './AddStore';
 import {
@@ -32,8 +33,6 @@ ChartJS.register(
   Legend,
   Filler
 );
-
-const API_BASE_URL = 'https://medimitra-backend-xws5.onrender.com/api';
 
 function AdminDashboard() {
   const { user } = useAuth();

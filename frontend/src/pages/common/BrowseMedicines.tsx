@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import SectionTitle from '../../components/medical/SectionTitle';
-
-const API_BASE_URL = 'https://medimitra-backend-xws5.onrender.com/api';
+import { API_BASE_URL } from '../../api/api';
 
 interface Medicine {
   id: number;

@@ -9,7 +9,7 @@ services:
       - key: JAVA_TOOL_OPTIONS
         value: -Djava.net.preferIPv4Stack=true -Xmx256m
       - key: DATABASE_URL
-        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0&connectTimeout=60&socketTimeout=60&tcpKeepAlive=true
+        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require&connectTimeout=120&socketTimeout=120&tcpKeepAlive=true&loginTimeout=120
       - key: DB_USERNAME
         value: postgres.thcfrsehlyxrpwvmwcdy
       - key: DB_PASSWORD

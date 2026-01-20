@@ -9,9 +9,9 @@ services:
       - key: JAVA_TOOL_OPTIONS
         value: -Djava.net.preferIPv4Stack=true -Xmx256m
       - key: DATABASE_URL
-        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require&connectTimeout=120&socketTimeout=120&tcpKeepAlive=true&loginTimeout=120
+        value: jdbc:postgresql://db.thcfrsehlyxrpwvmwcdy.supabase.co:5432/postgres?sslmode=require&connectTimeout=120&socketTimeout=120&tcpKeepAlive=true&loginTimeout=120
       - key: DB_USERNAME
-        value: postgres.thcfrsehlyxrpwvmwcdy
+        value: postgres
       - key: DB_PASSWORD
         value: Dheeraj@#123
       - key: JWT_SECRET

@@ -18,12 +18,21 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<Cart> getCart(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(cartService.getOrCreateCart(user));
+        System.out.println("=== GET /api/cart ===");
+        System.out.println("User: " + (user != null ? "ID=" + user.getId() + ", Email=" + user.getEmail() : "NULL"));
+        Cart cart = cartService.getOrCreateCart(user);
+        System.out.println("Cart ID: " + cart.getId() + ", Items: " + (cart.getItems() != null ? cart.getItems().size() : 0));
+        return ResponseEntity.ok(cart);
     }
 
     @PostMapping
     public ResponseEntity<Cart> addToCart(@AuthenticationPrincipal User user, @RequestBody CartRequest request) {
-        return ResponseEntity.ok(cartService.addToCart(user, request));
+        System.out.println("=== POST /api/cart ===");
+        System.out.println("User: " + (user != null ? "ID=" + user.getId() + ", Email=" + user.getEmail() : "NULL"));
+        System.out.println("Request: Medicine ID=" + request.getMedicineId() + ", Quantity=" + request.getQuantity());
+        Cart cart = cartService.addToCart(user, request);
+        System.out.println("Cart after add: ID=" + cart.getId() + ", Items=" + (cart.getItems() != null ? cart.getItems().size() : 0));
+        return ResponseEntity.ok(cart);
     }
 
     @PutMapping("/{itemId}")

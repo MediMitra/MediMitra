@@ -26,19 +26,37 @@ public class CartService {
     @Autowired
     private MedicineRepository medicineRepository;
 
+    @Transactional
     public Cart getOrCreateCart(User user) {
-        return cartRepository.findByUser(user).orElseGet(() -> {
-            Cart cart = new Cart();
-            cart.setUser(user);
-            return cartRepository.save(cart);
+        System.out.println("CartService.getOrCreateCart - User: " + (user != null ? user.getId() : "NULL"));
+        Cart cart = cartRepository.findByUser(user).orElseGet(() -> {
+            Cart newCart = new Cart();
+            newCart.setUser(user);
+            return cartRepository.save(newCart);
         });
+        
+        // Ensure items are loaded with medicine details
+        if (cart.getItems() != null) {
+            cart.getItems().forEach(item -> {
+                System.out.println("  Cart Item - ID: " + item.getId() + ", Medicine: " + 
+                    (item.getMedicine() != null ? item.getMedicine().getName() : "NULL") + 
+                    ", Quantity: " + item.getQuantity());
+            });
+        }
+        System.out.println("  Total items in cart: " + (cart.getItems() != null ? cart.getItems().size() : 0));
+        return cart;
     }
 
     @Transactional
     public Cart addToCart(User user, CartRequest request) {
+        System.out.println("CartService.addToCart - User: " + user.getId() + ", Medicine: " + request.getMedicineId() + ", Qty: " + request.getQuantity());
+        
         Cart cart = getOrCreateCart(user);
+        System.out.println("  Got cart: ID=" + cart.getId());
+        
         Medicine medicine = medicineRepository.findById(request.getMedicineId())
                 .orElseThrow(() -> new RuntimeException("Medicine not found"));
+        System.out.println("  Found medicine: " + medicine.getName());
 
         // Check if item already exists in cart
         CartItem existingItem = cart.getItems().stream()
@@ -47,6 +65,7 @@ public class CartService {
                 .orElse(null);
 
         if (existingItem != null) {
+            System.out.println("  Item already exists, updating quantity from " + existingItem.getQuantity() + " to " + (existingItem.getQuantity() + request.getQuantity()));
             existingItem.setQuantity(existingItem.getQuantity() + request.getQuantity());
             cartItemRepository.save(existingItem);
         } else {
@@ -58,7 +77,9 @@ public class CartService {
             cartItemRepository.save(cartItem);
         }
 
-        return cartRepository.save(cart);
+        Cart savedCart = cartRepository.save(cart);
+        System.out.println("  Saved cart with " + (savedCart.getItems() != null ? savedCart.getItems().size() : 0) + " items");
+        return savedCart;
     }
 
     @Transactional

@@ -15,17 +15,24 @@ function Cart() {
   const fetchCart = async () => {
     try {
       setLoading(true);
+      console.log('Fetching cart...');
       const response = await cartAPI.getCart();
+      console.log('Cart response:', response);
+      console.log('Cart data:', response.data);
+      console.log('Items:', response.data?.items);
+      
       const items = response.data?.items?.map(item => ({
         id: item.id,
-        medicineId: item.medicine.id,
-        name: item.medicine.name,
-        price: item.medicine.price,
+        medicineId: item.medicine?.id,
+        name: item.medicine?.name,
+        price: item.medicine?.price,
         quantity: item.quantity,
-        category: item.medicine.category,
-        manufacturer: item.medicine.manufacturer,
-        color: getCategoryColor(item.medicine.category)
+        category: item.medicine?.category,
+        manufacturer: item.medicine?.manufacturer,
+        color: getCategoryColor(item.medicine?.category)
       })) || [];
+      
+      console.log('Processed items:', items);
       setCartItems(items);
     } catch (err) {
       console.error('Error fetching cart:', err);

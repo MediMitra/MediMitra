@@ -84,8 +84,15 @@ function Medicines() {
         return;
       }
 
-      await cartAPI.addToCart(medicine.id, 1);
-      setCartCount(prev => prev + 1);
+      console.log('Adding medicine to cart:', medicine.id);
+      const response = await cartAPI.addToCart(medicine.id, 1);
+      console.log('Add to cart response:', response);
+      
+      // Refresh cart count after adding
+      const cartResponse = await cartAPI.getCart();
+      const newCount = cartResponse.data?.items?.length || 0;
+      setCartCount(newCount);
+      console.log('Updated cart count:', newCount);
       
       // Show notification
       setShowCartNotification(true);

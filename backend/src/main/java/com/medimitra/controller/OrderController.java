@@ -7,6 +7,7 @@ import com.medimitra.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Order>> getUserOrders(@AuthenticationPrincipal User user) {
         System.out.println("=== GET /api/orders ===");
         System.out.println("User: " + (user != null ? "ID=" + user.getId() + ", Email=" + user.getEmail() : "NULL"));
@@ -27,6 +29,7 @@ public class OrderController {
     }
 
     @GetMapping("/all")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Order>> getAllOrders(@AuthenticationPrincipal User user) {
         // Only admin can access all orders
         if (user.getRole() != User.Role.ADMIN) {
@@ -36,6 +39,7 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
+    @Transactional(readOnly = true)
     public ResponseEntity<Order> getOrderById(
             @AuthenticationPrincipal User user,
             @PathVariable Long orderId) {

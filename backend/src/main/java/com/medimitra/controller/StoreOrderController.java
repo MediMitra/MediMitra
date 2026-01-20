@@ -4,6 +4,7 @@ import com.medimitra.model.Order;
 import com.medimitra.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -15,11 +16,13 @@ public class StoreOrderController {
     private OrderService orderService;
 
     @GetMapping("/{storeId}")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Order>> getStoreOrders(@PathVariable Long storeId) {
         return ResponseEntity.ok(orderService.getStoreOrders(storeId));
     }
 
     @GetMapping("/{storeId}/status/{status}")
+    @Transactional(readOnly = true)
     public ResponseEntity<List<Order>> getStoreOrdersByStatus(
             @PathVariable Long storeId,
             @PathVariable Order.OrderStatus status) {

@@ -7,13 +7,13 @@ services:
     dockerfilePath: ./Dockerfile
     envVars:
       - key: DATABASE_URL
-        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require&prepareThreshold=0&preparedStatementCacheQueries=0
+        value: jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require
       - key: DB_USERNAME
-        value: postgres.eevimjlybycmauhlxxjy
+        value: postgres.thcfrsehlyxrpwvmwcdy
       - key: DB_PASSWORD
-        value: Dheeraj@#123
+        sync: false
       - key: JWT_SECRET
-        value: 5v8y/B?E(H+MbQeThWmZq4t7w!z$C&F)J@NcRfUjXn2r5u8x/A%D*G-KaPdSgVkY
+        generateValue: true
       - key: CORS_ALLOWED_ORIGINS
         value: https://medi-mitra-omega.vercel.app,http://localhost:5173
       - key: SHOW_SQL

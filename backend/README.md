@@ -1,7 +1,7 @@
 # MediMitra Backend - Setup Guide
 
 ## Prerequisites
-- Java 21
+- Java 17
 - Maven 3.6+
 - Supabase PostgreSQL Database
 
@@ -14,14 +14,18 @@
 
 ### 2. Get Database Credentials
 1. Go to Project Settings → Database
-2. Copy the connection pooler string (Transaction mode)
-3. Update `application.properties`:
+2. Copy the connection pooler string (Session mode)
+3. Configure the app via environment variables (recommended) or `application.properties`:
 
 ```properties
-spring.datasource.url=jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
+spring.datasource.url=jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require
 spring.datasource.username=postgres.YOUR_PROJECT_REF
 spring.datasource.password=YOUR_SUPABASE_PASSWORD
 ```
+
+Notes:
+- Use the *session pooler* for Hibernate/JPA stability.
+- Always keep the password in an environment variable/secret (do not commit it).
 
 ### 3. Configure JWT Secret
 Update the JWT secret in `application.properties`:

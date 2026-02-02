@@ -53,7 +53,8 @@ public class AuthController {
         try {
             Long userId = Long.valueOf(request.get("userId").toString());
             String phone = (String) request.get("phone");
-            AuthResponse response = authService.updatePhone(userId, phone);
+            String password = request.get("password") != null ? (String) request.get("password") : null;
+            AuthResponse response = authService.updatePhone(userId, phone, password);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new RuntimeException("Failed to update phone: " + e.getMessage());

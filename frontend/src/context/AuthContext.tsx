@@ -22,7 +22,7 @@ interface AuthContextType {
   login: (emailOrCredentials: string | LoginCredentials, passwordParam?: string) => Promise<LoginResponse>;
   register: (userData: RegisterData) => Promise<LoginResponse>;
   googleAuth: (credential: string, phone?: string) => Promise<LoginResponse>;
-  updatePhone: (phone: string) => Promise<LoginResponse>;
+  updatePhone: (phone: string, password: string) => Promise<LoginResponse>;
   logout: () => void;
   loading: boolean;
 }
@@ -141,13 +141,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const updatePhone = async (phone: string): Promise<LoginResponse> => {
+  const updatePhone = async (phone: string, password: string): Promise<LoginResponse> => {
     try {
       if (!user) {
         return { success: false, error: 'No user logged in' };
       }
       
-      const response = await authAPI.updatePhone(user.id, phone);
+      const response = await authAPI.updatePhone(user.id, phone, password);
       const { token, id, name, email, role, storeId, phone: userPhone } = response.data;
       
       const userData: User = {

@@ -110,7 +110,7 @@ export const authAPI = {
   login: (credentials: LoginCredentials) => api.post<AuthResponse>('/auth/login', credentials),
   register: (userData: RegisterData) => api.post<AuthResponse>('/auth/register', userData),
   googleAuth: (data: GoogleAuthData) => api.post<AuthResponse>('/auth/google', data),
-  updatePhone: (userId: number, phone: string) => api.post<AuthResponse>('/auth/update-phone', { userId, phone }),
+  updatePhone: (userId: number, phone: string, password: string) => api.post<AuthResponse>('/auth/update-phone', { userId, phone, password }),
 };
 
 // Medicine APIs

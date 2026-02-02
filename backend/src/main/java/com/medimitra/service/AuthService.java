@@ -211,13 +211,19 @@ public class AuthService {
     }
 
     /**
-     * Update user's phone number
+     * Update user's phone number and optionally set password for Google OAuth users
      */
-    public AuthResponse updatePhone(Long userId, String phone) {
+    public AuthResponse updatePhone(Long userId, String phone, String password) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
         user.setPhone(phone);
+        
+        // If password is provided (for Google OAuth users), hash and save it
+        if (password != null && !password.isEmpty()) {
+            user.setPassword(passwordEncoder.encode(password));
+        }
+        
         user = userRepository.save(user);
 
         String token = tokenProvider.generateToken(user.getId(), user.getEmail());

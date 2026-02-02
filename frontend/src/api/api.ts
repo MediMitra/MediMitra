@@ -29,7 +29,13 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
+  phone?: string;
   role?: string;
+}
+
+export interface GoogleAuthData {
+  credential: string;
+  phone?: string;
 }
 
 export interface AuthResponse {
@@ -39,6 +45,8 @@ export interface AuthResponse {
   email: string;
   role: string;
   storeId?: number;
+  phone?: string;
+  phoneRequired?: boolean;
 }
 
 export interface Medicine {
@@ -101,6 +109,8 @@ export interface OrderItem {
 export const authAPI = {
   login: (credentials: LoginCredentials) => api.post<AuthResponse>('/auth/login', credentials),
   register: (userData: RegisterData) => api.post<AuthResponse>('/auth/register', userData),
+  googleAuth: (data: GoogleAuthData) => api.post<AuthResponse>('/auth/google', data),
+  updatePhone: (userId: number, phone: string) => api.post<AuthResponse>('/auth/update-phone', { userId, phone }),
 };
 
 // Medicine APIs

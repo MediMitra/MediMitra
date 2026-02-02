@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authAPI, RegisterData, LoginCredentials } from '../api/api';
+import { authAPI, RegisterData, LoginCredentials, GoogleAuthData } from '../api/api';
 
 export interface User {
   id: number;
@@ -7,18 +7,22 @@ export interface User {
   email: string;
   role: string;
   storeId?: number;
+  phone?: string;
 }
 
 interface LoginResponse {
   success: boolean;
   user?: User;
   error?: string;
+  phoneRequired?: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (emailOrCredentials: string | LoginCredentials, passwordParam?: string) => Promise<LoginResponse>;
   register: (userData: RegisterData) => Promise<LoginResponse>;
+  googleAuth: (credential: string, phone?: string) => Promise<LoginResponse>;
+  updatePhone: (phone: string) => Promise<LoginResponse>;
   logout: () => void;
   loading: boolean;
 }
@@ -84,14 +88,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const register = async (userData: RegisterData): Promise<LoginResponse> => {
     try {
       const response = await authAPI.register(userData);
-      const { token, id, name, email, role, storeId } = response.data;
+      const { token, id, name, email, role, storeId, phone } = response.data;
       
       const newUser: User = {
         id,
         name,
         email,
         role,
-        storeId
+        storeId,
+        phone
       };
       
       localStorage.setItem('token', token);
@@ -108,6 +113,66 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  const googleAuth = async (credential: string, phone?: string): Promise<LoginResponse> => {
+    try {
+      const response = await authAPI.googleAuth({ credential, phone });
+      const { token, id, name, email, role, storeId, phone: userPhone, phoneRequired } = response.data;
+      
+      const userData: User = {
+        id,
+        name,
+        email,
+        role,
+        storeId,
+        phone: userPhone
+      };
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      
+      return { success: true, user: userData, phoneRequired };
+    } catch (error: any) {
+      console.error('Google auth error:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Google authentication failed' 
+      };
+    }
+  };
+
+  const updatePhone = async (phone: string): Promise<LoginResponse> => {
+    try {
+      if (!user) {
+        return { success: false, error: 'No user logged in' };
+      }
+      
+      const response = await authAPI.updatePhone(user.id, phone);
+      const { token, id, name, email, role, storeId, phone: userPhone } = response.data;
+      
+      const userData: User = {
+        id,
+        name,
+        email,
+        role,
+        storeId,
+        phone: userPhone
+      };
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      
+      return { success: true, user: userData };
+    } catch (error: any) {
+      console.error('Update phone error:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to update phone' 
+      };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -115,7 +180,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, googleAuth, updatePhone, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

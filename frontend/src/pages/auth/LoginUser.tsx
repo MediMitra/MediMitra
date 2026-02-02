@@ -2,12 +2,21 @@ import { useState, FormEvent, ChangeEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { CustomGoogleButton } from '../../components/GoogleSignInButton';
+import PhoneModal from '../../components/PhoneModal';
+
+// Google Client ID - Replace with your actual client ID
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
 
 function LoginUser(): JSX.Element {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
-  const { login } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState<boolean>(false);
+  const [showPhoneModal, setShowPhoneModal] = useState<boolean>(false);
+  const [phoneLoading, setPhoneLoading] = useState<boolean>(false);
+  const { login, googleAuth, updatePhone } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
@@ -23,6 +32,96 @@ function LoginUser(): JSX.Element {
       }
     } else {
       setError(result.error);
+    }
+  };
+
+  const handleGoogleSuccess = async (credential: string) => {
+    setGoogleLoading(true);
+    setError('');
+    
+    try {
+      const result = await googleAuth(credential);
+      if (result.success) {
+        if (result.user?.role === 'USER') {
+          if (result.phoneRequired) {
+            // Show phone modal if phone is required
+            setShowPhoneModal(true);
+          } else {
+            navigate('/medicines');
+          }
+        } else {
+          setError('Invalid user credentials. Please use customer account.');
+        }
+      } else {
+        setError(result.error || 'Google sign-in failed');
+      }
+    } catch (err: any) {
+      setError('Google sign-in failed. Please try again.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Google sign-in failed. Please try again.');
+    setGoogleLoading(false);
+  };
+
+  const handlePhoneSubmit = async (phone: string) => {
+    setPhoneLoading(true);
+    try {
+      const result = await updatePhone(phone);
+      if (result.success) {
+        setShowPhoneModal(false);
+        navigate('/medicines');
+      } else {
+        setError(result.error || 'Failed to save phone number');
+      }
+    } catch (err) {
+      setError('Failed to save phone number');
+    } finally {
+      setPhoneLoading(false);
+    }
+  };
+
+  const handlePhoneModalClose = () => {
+    setShowPhoneModal(false);
+    // Navigate anyway, user can add phone later
+    navigate('/medicines');
+  };
+
+  // Simulated Google OAuth flow using popup
+  const handleGoogleSignIn = () => {
+    setGoogleLoading(true);
+    setError('');
+    
+    // Use Google Identity Services
+    if (typeof google !== 'undefined' && google.accounts) {
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: (response: any) => {
+          if (response.credential) {
+            handleGoogleSuccess(response.credential);
+          } else {
+            handleGoogleError();
+          }
+        },
+      });
+      
+      google.accounts.id.prompt((notification: any) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          // Fall back to button click
+          google.accounts.id.renderButton(
+            document.getElementById('google-signin-button')!,
+            { theme: 'outline', size: 'large', width: '100%' }
+          );
+        }
+      });
+    } else {
+      // Fallback: redirect to Google OAuth
+      const redirectUri = encodeURIComponent(window.location.origin + '/auth/google/callback');
+      const scope = encodeURIComponent('email profile');
+      window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
     }
   };
 
@@ -107,6 +206,23 @@ function LoginUser(): JSX.Element {
               </button>
             </form>
 
+            {/* Divider */}
+            <div className="flex items-center my-6">
+              <div className="flex-1 border-t border-gray-300"></div>
+              <span className="px-4 text-sm text-gray-500">or</span>
+              <div className="flex-1 border-t border-gray-300"></div>
+            </div>
+
+            {/* Google Sign In */}
+            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+              <CustomGoogleButton
+                onClick={handleGoogleSignIn}
+                loading={googleLoading}
+                text="Sign in with Google"
+              />
+            </GoogleOAuthProvider>
+            <div id="google-signin-button" className="hidden"></div>
+
             {/* Register Link */}
             <div className="mt-8 text-center">
               <p className="text-gray-600">
@@ -153,6 +269,14 @@ function LoginUser(): JSX.Element {
           </motion.div>
         </div>
       </div>
+
+      {/* Phone Modal */}
+      <PhoneModal
+        isOpen={showPhoneModal}
+        onClose={handlePhoneModalClose}
+        onSubmit={handlePhoneSubmit}
+        loading={phoneLoading}
+      />
     </div>
   );
 }

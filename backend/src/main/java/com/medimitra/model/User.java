@@ -22,7 +22,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String password;
 
     @Column(nullable = false)
@@ -31,11 +31,28 @@ public class User {
 
     private Long storeId;
 
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "google_id", unique = true)
+    private String googleId;
+
+    @Column(name = "profile_picture")
+    private String profilePicture;
+
+    @Column(name = "auth_provider")
+    @Enumerated(EnumType.STRING)
+    private AuthProvider authProvider = AuthProvider.LOCAL;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public enum AuthProvider {
+        LOCAL, GOOGLE
+    }
 
     @PrePersist
     protected void onCreate() {

@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { CustomGoogleButton } from '../../components/GoogleSignInButton';
+import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import PhoneModal from '../../components/PhoneModal';
 
 // Google Client ID - Replace with your actual client ID
@@ -42,29 +42,6 @@ const Register = (): JSX.Element => {
     }
   };
 
-  const handleGoogleSuccess = async (credential: string) => {
-    setGoogleLoading(true);
-    setError('');
-    
-    try {
-      const result = await googleAuth(credential);
-      if (result.success) {
-        if (result.phoneRequired) {
-          // Show phone modal if phone is required
-          setShowPhoneModal(true);
-        } else {
-          navigate('/medicines');
-        }
-      } else {
-        setError(result.error || 'Google sign-up failed');
-      }
-    } catch (err: any) {
-      setError('Google sign-up failed. Please try again.');
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
-
   const handleGoogleError = () => {
     setError('Google sign-up failed. Please try again.');
     setGoogleLoading(false);
@@ -93,43 +70,33 @@ const Register = (): JSX.Element => {
     navigate('/medicines');
   };
 
-  // Simulated Google OAuth flow using popup
-  const handleGoogleSignUp = () => {
+  // Google Sign-Up handler
+  const handleGoogleSignUp = async (credential: string) => {
     setGoogleLoading(true);
     setError('');
     
-    // Use Google Identity Services
-    if (typeof google !== 'undefined' && google.accounts) {
-      google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: (response: any) => {
-          if (response.credential) {
-            handleGoogleSuccess(response.credential);
-          } else {
-            handleGoogleError();
-          }
-        },
-      });
-      
-      google.accounts.id.prompt((notification: any) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // Fall back to button click
-          google.accounts.id.renderButton(
-            document.getElementById('google-signin-button')!,
-            { theme: 'outline', size: 'large', width: '100%' }
-          );
+    try {
+      const result = await googleAuth(credential);
+      if (result.success) {
+        if (result.phoneRequired) {
+          // Show phone modal if phone is required
+          setShowPhoneModal(true);
+        } else {
+          navigate('/medicines');
         }
-      });
-    } else {
-      // Fallback: redirect to Google OAuth
-      const redirectUri = encodeURIComponent(window.location.origin + '/auth/google/callback');
-      const scope = encodeURIComponent('email profile');
-      window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
+      } else {
+        setError(result.error || 'Google sign-up failed');
+      }
+    } catch (err: any) {
+      setError('Google sign-up failed. Please try again.');
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex">
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <div className="min-h-screen flex">
       {/* Left Side - Registration Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="max-w-md w-full">
@@ -251,14 +218,12 @@ const Register = (): JSX.Element => {
             </div>
 
             {/* Google Sign Up */}
-            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-              <CustomGoogleButton
-                onClick={handleGoogleSignUp}
-                loading={googleLoading}
-                text="Sign up with Google"
-              />
-            </GoogleOAuthProvider>
-            <div id="google-signin-button" className="hidden"></div>
+            <GoogleSignInButton
+              onSuccess={handleGoogleSignUp}
+              onError={handleGoogleError}
+              text="signup_with"
+              disabled={googleLoading}
+            />
 
             {/* Login Link */}
             <div className="mt-8 text-center">
@@ -328,6 +293,7 @@ const Register = (): JSX.Element => {
         loading={phoneLoading}
       />
     </div>
+    </GoogleOAuthProvider>
   );
 };
 

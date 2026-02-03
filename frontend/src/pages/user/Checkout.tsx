@@ -10,7 +10,6 @@ const Checkout = () => {
   const [selectedStore, setSelectedStore] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('COD');
   const [showAddressForm, setShowAddressForm] = useState(false);
-  const [cart, setCart] = useState([]);
   const [newAddress, setNewAddress] = useState({
     fullName: '',
     phone: '',
@@ -26,20 +25,7 @@ const Checkout = () => {
   useEffect(() => {
     fetchAddresses();
     fetchStores();
-    fetchCart();
   }, []);
-
-  const fetchCart = () => {
-    const savedCart = JSON.parse(localStorage.getItem('cart') || '[]');
-    setCart(savedCart);
-  };
-
-  const calculateTotals = () => {
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const shipping = subtotal < 200 ? 50 : 0;
-    const total = subtotal + shipping;
-    return { subtotal, shipping, total };
-  };
 
   const fetchStores = async () => {
     try {
@@ -479,53 +465,6 @@ const Checkout = () => {
                   </div>
                 </div>
               </label>
-            </div>
-          </motion.div>
-          
-          {/* Order Summary Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">Order Summary</h2>
-            </div>
-            
-            <div className="space-y-4">
-              {cart.map((item) => (
-                <div key={item.id} className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{item.name}</p>
-                    <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                  </div>
-                  <p className="font-semibold text-gray-900">₹{(item.price * item.quantity).toFixed(2)}</p>
-                </div>
-              ))}
-              
-              <div className="border-t border-gray-200 pt-4 space-y-2">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal:</span>
-                  <span>₹{calculateTotals().subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Shipping:</span>
-                  <span>₹{calculateTotals().shipping.toFixed(2)}</span>
-                </div>
-                {calculateTotals().subtotal >= 200 && (
-                  <p className="text-sm text-green-600 font-medium">No shipping charges above ₹200</p>
-                )}
-                <div className="flex justify-between text-xl font-bold text-gray-900 border-t border-gray-300 pt-2">
-                  <span>Total:</span>
-                  <span>₹{calculateTotals().total.toFixed(2)}</span>
-                </div>
-              </div>
             </div>
           </motion.div>
           

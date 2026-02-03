@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addressAPI, orderAPI, storeAPI } from '../../api/api';
+import { addressAPI, orderAPI, storeAPI, cartAPI } from '../../api/api';
 import { motion } from 'framer-motion';
 
 const Checkout = () => {
   const [addresses, setAddresses] = useState([]);
   const [stores, setStores] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState('');
   const [selectedStore, setSelectedStore] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('COD');
@@ -25,7 +26,24 @@ const Checkout = () => {
   useEffect(() => {
     fetchAddresses();
     fetchStores();
+    fetchCart();
   }, []);
+
+  const fetchCart = async () => {
+    try {
+      const response = await cartAPI.getCart();
+      const items = response.data?.items?.map(item => ({
+        id: item.id,
+        medicineId: item.medicine?.id,
+        name: item.medicine?.name,
+        price: item.medicine?.price,
+        quantity: item.quantity,
+      })) || [];
+      setCartItems(items);
+    } catch (err) {
+      console.error('Error fetching cart:', err);
+    }
+  };
 
   const fetchStores = async () => {
     try {
@@ -377,11 +395,84 @@ const Checkout = () => {
             </div>
           </motion.div>
           
-          {/* Payment Method Section */}
+          {/* Order Summary Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Order Summary</h2>
+            </div>
+
+            {(() => {
+              const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+              const tax = subtotal * 0.05;
+              const shipping = subtotal > 0 && subtotal < 200 ? 50 : 0;
+              const total = subtotal + tax + shipping;
+
+              return (
+                <div className="space-y-4">
+                  <div className="flex justify-between text-gray-700">
+                    <span>Subtotal ({cartItems.length} items)</span>
+                    <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-700">
+                    <span>Tax (5%)</span>
+                    <span className="font-semibold">₹{tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-700">
+                    <span>Shipping</span>
+                    <span className="font-semibold">
+                      {shipping === 0 && subtotal >= 200 ? (
+                        <span className="text-green-600">FREE</span>
+                      ) : (
+                        `₹${shipping.toFixed(2)}`
+                      )}
+                    </span>
+                  </div>
+                  {subtotal < 200 && subtotal > 0 && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
+                      <p className="text-blue-800 font-medium flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                        </svg>
+                        Add ₹{(200 - subtotal).toFixed(2)} more to get FREE shipping!
+                      </p>
+                    </div>
+                  )}
+                  {subtotal >= 200 && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm">
+                      <p className="text-green-800 font-medium flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        You get FREE shipping on this order!
+                      </p>
+                    </div>
+                  )}
+                  <div className="border-t-2 border-gray-200 pt-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xl font-bold text-gray-900">Total</span>
+                      <span className="text-3xl font-bold text-indigo-600">₹{total.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+          </motion.div>
+          
+          {/* Payment Method Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
             className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100"
           >
             <div className="flex items-center gap-3 mb-6">
@@ -472,7 +563,7 @@ const Checkout = () => {
           <motion.button 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.4 }}
             onClick={handleCheckout}
             className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-5 rounded-2xl font-bold text-xl hover:from-green-700 hover:to-green-800 transition-all shadow-2xl hover:shadow-3xl flex items-center justify-center gap-3"
           >

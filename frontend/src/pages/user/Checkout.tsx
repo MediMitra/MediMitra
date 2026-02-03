@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addressAPI, orderAPI, storeAPI, cartAPI } from '../../api/api';
 import { motion } from 'framer-motion';
+import { generateInvoice } from '../../utils/invoiceGenerator';
 
 const Checkout = () => {
   const [addresses, setAddresses] = useState([]);
@@ -137,7 +138,14 @@ const Checkout = () => {
       console.log('Order ID:', response.data?.id);
       
       localStorage.removeItem('cart');
-      alert(`Order placed successfully! Order ID: #${response.data.id}`);
+      
+      // Show success message with download option
+      const downloadInvoice = confirm(`Order placed successfully! Order ID: #${response.data.id}\n\nWould you like to download your invoice now?`);
+      
+      if (downloadInvoice && response.data) {
+        // Generate and download invoice
+        generateInvoice(response.data);
+      }
       
       // Redirect after a short delay
       setTimeout(() => navigate('/orders'), 1000);

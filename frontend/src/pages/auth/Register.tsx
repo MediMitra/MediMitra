@@ -32,19 +32,23 @@ const Register = (): JSX.Element => {
   const [phoneLoading, setPhoneLoading] = useState<boolean>(false);
   const [showEmailVerification, setShowEmailVerification] = useState<boolean>(false);
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false);
+  const [sendingOtp, setSendingOtp] = useState<boolean>(false);
   const { register, googleAuth, updatePhone } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setError('');
+    setSendingOtp(true);
     
     // First, send OTP to verify email
     try {
+      console.log('Sending OTP request to:', formData.email);
       const response = await authAPI.sendOtp({ 
         email: formData.email,
         name: formData.name 
       });
+      console.log('OTP response:', response.data);
 
       if (response.data.success) {
         setShowEmailVerification(true);
@@ -52,34 +56,47 @@ const Register = (): JSX.Element => {
         setError(response.data.message || 'Failed to send OTP. Please try again.');
       }
     } catch (err: any) {
-      setError('Failed to send OTP. Please try again.');
+      console.error('OTP error:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to send OTP. Please try again.';
+      setError(errorMessage);
+    } finally {
+      setSendingOtp(false);
     }
   };
 
   const handleEmailVerified = async (): Promise<void> => {
     setIsEmailVerified(true);
     setShowEmailVerification(false);
+    setSendingOtp(true); // Reuse loading state for registration
+    setError('');
     
     // Now register the user
     try {
+      console.log('Registering user after email verification...');
       const response = await authAPI.registerWithVerifiedEmail(formData);
       const data = response.data;
+      console.log('Registration successful:', data);
       
       // Save auth data
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify({
-        id: data.userId,
+      const userData = {
+        id: data.id,
         name: data.name,
         email: data.email,
         role: data.role,
         storeId: data.storeId,
         phone: data.phone
-      }));
+      };
+      localStorage.setItem('user', JSON.stringify(userData));
 
-      navigate('/medicines');
+      // Force page reload to update AuthContext, then navigate
+      window.location.href = '/medicines';
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
+      console.error('Registration error:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Registration failed. Please try again.';
+      setError(errorMessage);
       setIsEmailVerified(false);
+      setSendingOtp(false);
     }
   };
 
@@ -284,8 +301,22 @@ const Register = (): JSX.Element => {
                 </div>
               </div>
 
-              <button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl">
-                Create Account
+              <button 
+                type="submit" 
+                disabled={sendingOtp}
+                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {sendingOtp ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Sending OTP...
+                  </span>
+                ) : (
+                  'Create Account'
+                )}
               </button>
             </form>
 

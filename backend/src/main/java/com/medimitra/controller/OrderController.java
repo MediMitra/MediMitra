@@ -31,11 +31,24 @@ public class OrderController {
     @GetMapping("/all")
     @Transactional(readOnly = true)
     public ResponseEntity<List<Order>> getAllOrders(@AuthenticationPrincipal User user) {
+        System.out.println("=== GET /api/orders/all ===");
+        System.out.println("User: " + (user != null ? "ID=" + user.getId() + ", Email=" + user.getEmail() + ", Role=" + user.getRole() : "NULL"));
+        
+        // Check if user is authenticated
+        if (user == null) {
+            System.out.println("Error: User is null - not authenticated");
+            return ResponseEntity.status(401).build();
+        }
+        
         // Only admin can access all orders
         if (user.getRole() != User.Role.ADMIN) {
+            System.out.println("Error: User role is " + user.getRole() + ", not ADMIN");
             return ResponseEntity.status(403).build();
         }
-        return ResponseEntity.ok(orderService.getAllOrders());
+        
+        List<Order> orders = orderService.getAllOrders();
+        System.out.println("Returning " + orders.size() + " orders");
+        return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/{orderId}")

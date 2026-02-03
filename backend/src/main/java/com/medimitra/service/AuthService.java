@@ -12,6 +12,8 @@ import com.medimitra.repository.UserRepository;
 import com.medimitra.repository.StoreRepository;
 import com.medimitra.repository.EmailOtpRepository;
 import com.medimitra.security.JwtTokenProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +31,8 @@ import java.util.Random;
 
 @Service
 public class AuthService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -254,31 +258,50 @@ public class AuthService {
     /**
      * Generate and send OTP for email verification
      */
-    @Transactional
     public OtpResponse sendEmailOtp(String email, String name) {
-        // Check if email already exists
-        if (userRepository.existsByEmail(email)) {
-            return new OtpResponse(false, "Email already registered");
-        }
-
-        // Generate 6-digit OTP
-        String otp = String.format("%06d", new Random().nextInt(999999));
-
-        // Delete any existing OTPs for this email
-        emailOtpRepository.deleteByEmail(email);
-
-        // Save new OTP
-        EmailOtp emailOtp = new EmailOtp();
-        emailOtp.setEmail(email);
-        emailOtp.setOtp(otp);
-        emailOtpRepository.save(emailOtp);
-
-        // Send OTP email
+        logger.info("Received OTP request for email: {}, name: {}", email, name);
+        
         try {
-            emailService.sendOtpEmail(email, otp, name);
-            return new OtpResponse(true, "OTP sent successfully to your email");
+            // Check if email already exists
+            if (userRepository.existsByEmail(email)) {
+                logger.warn("Email already registered: {}", email);
+                return new OtpResponse(false, "Email already registered");
+            }
+
+            // Generate 6-digit OTP
+            String otp = String.format("%06d", new Random().nextInt(999999));
+            logger.info("Generated OTP for email: {}", email);
+
+            // Delete any existing OTPs for this email using findAndDelete pattern
+            try {
+                java.util.List<EmailOtp> existingOtps = emailOtpRepository.findByEmail(email);
+                if (!existingOtps.isEmpty()) {
+                    emailOtpRepository.deleteAll(existingOtps);
+                    logger.info("Deleted {} existing OTPs for email: {}", existingOtps.size(), email);
+                }
+            } catch (Exception e) {
+                logger.warn("Error deleting existing OTPs (may not exist): {}", e.getMessage());
+            }
+
+            // Save new OTP
+            EmailOtp emailOtp = new EmailOtp();
+            emailOtp.setEmail(email);
+            emailOtp.setOtp(otp);
+            emailOtpRepository.save(emailOtp);
+            logger.info("Saved OTP to database for email: {}", email);
+
+            // Send OTP email
+            try {
+                emailService.sendOtpEmail(email, otp, name);
+                logger.info("OTP sent successfully to: {}", email);
+                return new OtpResponse(true, "OTP sent successfully to your email");
+            } catch (Exception e) {
+                logger.error("Failed to send OTP email to {}: {}", email, e.getMessage(), e);
+                return new OtpResponse(false, "Failed to send OTP: " + e.getMessage());
+            }
         } catch (Exception e) {
-            return new OtpResponse(false, "Failed to send OTP: " + e.getMessage());
+            logger.error("Error in sendEmailOtp for {}: {}", email, e.getMessage(), e);
+            return new OtpResponse(false, "Failed to process OTP request: " + e.getMessage());
         }
     }
 
@@ -287,6 +310,7 @@ public class AuthService {
      */
     @Transactional
     public OtpResponse verifyEmailOtp(String email, String otp) {
+        logger.info("Verifying OTP for email: {}", email);
         // Find the latest OTP for this email
         Optional<EmailOtp> emailOtpOpt = emailOtpRepository
                 .findTopByEmailAndVerifiedFalseOrderByCreatedAtDesc(email);

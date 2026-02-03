@@ -25,3 +25,9 @@ services:
         value: INFO
       - key: PORT
         value: 8080
+      - key: MAIL_USERNAME
+        value: dheerajsinghnew1@gmail.com
+      - key: MAIL_PASSWORD
+        value: mgmzqmduvbjoutzw
+      - key: GOOGLE_CLIENT_ID
+        value: 864870563363-h7moljcd7926tt1af8fmbpaodqct0ntf.apps.googleusercontent.com

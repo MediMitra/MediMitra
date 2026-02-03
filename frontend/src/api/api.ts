@@ -1,10 +1,32 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosError } from 'axios';
+
+// Determine API URL based on environment
+// In production (Vercel), use the Render backend URL
+// In development, use localhost
+const getApiBaseUrl = (): string => {
+  // Check for explicit environment variable first
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  
+  // In production mode, use Render backend
+  if (import.meta.env.PROD) {
+    return 'https://medimitra-backend-xws5.onrender.com/api';
+  }
+  
+  // In development, use localhost
+  return 'http://localhost:8080/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+console.log('API Base URL:', API_BASE_URL, 'Mode:', import.meta.env.MODE);
 
 const api: AxiosInstance = axios.create({
-  baseURL: 'https://medimitra-backend-xws5.onrender.com/api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 60000, // 60 second timeout for slow cold starts on Render
 });
 
 // Add auth token to requests

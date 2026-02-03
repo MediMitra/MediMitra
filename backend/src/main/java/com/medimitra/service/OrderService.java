@@ -35,6 +35,9 @@ public class OrderService {
     @Autowired
     private MedicineRepository medicineRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     public List<Order> getUserOrders(User user) {
         System.out.println("=== OrderService.getUserOrders ===");
         System.out.println("User: ID=" + user.getId() + ", Email=" + user.getEmail());
@@ -147,6 +150,15 @@ public class OrderService {
         } catch (Exception e) {
             // Log the error but don't fail the order
             System.err.println("Error clearing cart: " + e.getMessage());
+        }
+
+        // Send invoice email to customer
+        try {
+            emailService.sendOrderInvoiceEmail(savedOrder);
+            System.out.println("Invoice email sent to: " + user.getEmail());
+        } catch (Exception e) {
+            // Log the error but don't fail the order
+            System.err.println("Error sending invoice email: " + e.getMessage());
         }
 
         return savedOrder;

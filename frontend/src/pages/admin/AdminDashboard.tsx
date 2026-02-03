@@ -33,7 +33,18 @@ ChartJS.register(
   Filler
 );
 
-const API_BASE_URL = 'https://medimitra-backend-xws5.onrender.com/api';
+// Determine API URL based on environment
+const getApiBaseUrl = (): string => {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  if (import.meta.env.PROD) {
+    return 'https://medimitra-backend-xws5.onrender.com/api';
+  }
+  return 'http://localhost:8080/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 function AdminDashboard() {
   const { user } = useAuth();
@@ -194,13 +205,24 @@ function AdminDashboard() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
+      console.log('Fetching orders from:', `${API_BASE_URL}/orders/all`);
+      console.log('Token:', localStorage.getItem('token') ? 'Present' : 'Missing');
       const response = await axios.get(`${API_BASE_URL}/orders/all`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
+      console.log('Orders fetched:', response.data);
       setOrders(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching orders:', error);
-      alert('Failed to fetch orders: ' + (error.response?.data?.message || error.message));
+      console.error('Response status:', error.response?.status);
+      console.error('Response data:', error.response?.data);
+      if (error.response?.status === 403) {
+        alert('Access denied: You need ADMIN role to view all orders');
+      } else if (error.response?.status === 401) {
+        alert('Not authenticated: Please login again');
+      } else {
+        alert('Failed to fetch orders: ' + (error.response?.data?.message || error.message));
+      }
     } finally {
       setLoading(false);
     }

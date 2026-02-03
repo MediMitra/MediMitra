@@ -1,5 +1,7 @@
 package com.medimitra.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -9,6 +11,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+
     @Autowired
     private JavaMailSender mailSender;
 
@@ -17,6 +21,8 @@ public class EmailService {
 
     public void sendOtpEmail(String toEmail, String otp, String userName) {
         try {
+            logger.info("Attempting to send OTP email to: {}", toEmail);
+            
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
@@ -35,13 +41,18 @@ public class EmailService {
             
             message.setText(emailBody);
             mailSender.send(message);
+            
+            logger.info("OTP email sent successfully to: {}", toEmail);
         } catch (Exception e) {
+            logger.error("Failed to send OTP email to {}: {}", toEmail, e.getMessage(), e);
             throw new RuntimeException("Failed to send OTP email: " + e.getMessage());
         }
     }
 
     public void sendWelcomeEmail(String toEmail, String userName) {
         try {
+            logger.info("Attempting to send welcome email to: {}", toEmail);
+            
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
@@ -63,9 +74,11 @@ public class EmailService {
             
             message.setText(emailBody);
             mailSender.send(message);
+            
+            logger.info("Welcome email sent successfully to: {}", toEmail);
         } catch (Exception e) {
             // Don't throw exception for welcome email failure
-            System.err.println("Failed to send welcome email: " + e.getMessage());
+            logger.error("Failed to send welcome email to {}: {}", toEmail, e.getMessage());
         }
     }
 }

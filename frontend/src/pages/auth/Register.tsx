@@ -5,9 +5,11 @@ import { motion } from 'framer-motion';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import PhoneModal from '../../components/PhoneModal';
+import EmailVerification from '../../components/EmailVerification';
 
 // Google Client ID - Replace with your actual client ID
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 interface RegisterFormData {
   name: string;
@@ -28,6 +30,8 @@ const Register = (): JSX.Element => {
   const [googleLoading, setGoogleLoading] = useState<boolean>(false);
   const [showPhoneModal, setShowPhoneModal] = useState<boolean>(false);
   const [phoneLoading, setPhoneLoading] = useState<boolean>(false);
+  const [showEmailVerification, setShowEmailVerification] = useState<boolean>(false);
+  const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false);
   const { register, googleAuth, updatePhone } = useAuth();
   const navigate = useNavigate();
 
@@ -35,12 +39,96 @@ const Register = (): JSX.Element => {
     e.preventDefault();
     setError('');
     
+    // First, send OTP to verify email
     try {
-      await register(formData);
+      const response = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          email: formData.email,
+          name: formData.name 
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setShowEmailVerification(true);
+      } else {
+        setError(data.message || 'Failed to send OTP. Please try again.');
+      }
+    } catch (err: any) {
+      setError('Failed to send OTP. Please try again.');
+    }
+  };
+
+  const handleEmailVerified = async (): Promise<void> => {
+    setIsEmailVerified(true);
+    setShowEmailVerification(false);
+    
+    // Now register the user
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register-verified`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
+      }
+
+      const data = await response.json();
+      
+      // Save auth data
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify({
+        id: data.userId,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        storeId: data.storeId,
+        phone: data.phone
+      }));
+
       navigate('/medicines');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.message || 'Registration failed. Please try again.');
+      setIsEmailVerified(false);
     }
+  };
+
+  const handleResendOtp = async (): Promise<void> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          email: formData.email,
+          name: formData.name 
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        setError(data.message || 'Failed to resend OTP');
+      }
+    } catch (err) {
+      setError('Failed to resend OTP');
+    }
+  };
+
+  const handleBackToRegister = (): void => {
+    setShowEmailVerification(false);
+    setError('');
   };
 
   const handleGoogleError = () => {
@@ -101,6 +189,8 @@ const Register = (): JSX.Element => {
       {/* Left Side - Registration Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="max-w-md w-full">
+          {!showEmailVerification ? (
+            <>
           <Link to="/login-user" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -252,6 +342,16 @@ const Register = (): JSX.Element => {
               </p>
             </div>
           </motion.div>
+            </>
+          ) : (
+            <EmailVerification
+              email={formData.email}
+              name={formData.name}
+              onVerified={handleEmailVerified}
+              onResendOtp={handleResendOtp}
+              onBack={handleBackToRegister}
+            />
+          )}
         </div>
       </div>
 

@@ -4,15 +4,19 @@ import com.medimitra.dto.AuthResponse;
 import com.medimitra.dto.GoogleAuthRequest;
 import com.medimitra.dto.LoginRequest;
 import com.medimitra.dto.RegisterRequest;
+import com.medimitra.dto.OtpResponse;
 import com.medimitra.model.User;
 import com.medimitra.model.Store;
+import com.medimitra.model.EmailOtp;
 import com.medimitra.repository.UserRepository;
 import com.medimitra.repository.StoreRepository;
+import com.medimitra.repository.EmailOtpRepository;
 import com.medimitra.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -21,6 +25,7 @@ import com.google.api.client.json.gson.GsonFactory;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class AuthService {
@@ -32,10 +37,16 @@ public class AuthService {
     private StoreRepository storeRepository;
 
     @Autowired
+    private EmailOtpRepository emailOtpRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtTokenProvider tokenProvider;
+
+    @Autowired
+    private EmailService emailService;
 
     @Value("${google.client.id:}")
     private String googleClientId;
@@ -237,6 +248,129 @@ public class AuthService {
                 user.getStoreId(),
                 user.getPhone(),
                 false
+        );
+    }
+
+    /**
+     * Generate and send OTP for email verification
+     */
+    @Transactional
+    public OtpResponse sendEmailOtp(String email, String name) {
+        // Check if email already exists
+        if (userRepository.existsByEmail(email)) {
+            return new OtpResponse(false, "Email already registered");
+        }
+
+        // Generate 6-digit OTP
+        String otp = String.format("%06d", new Random().nextInt(999999));
+
+        // Delete any existing OTPs for this email
+        emailOtpRepository.deleteByEmail(email);
+
+        // Save new OTP
+        EmailOtp emailOtp = new EmailOtp();
+        emailOtp.setEmail(email);
+        emailOtp.setOtp(otp);
+        emailOtpRepository.save(emailOtp);
+
+        // Send OTP email
+        try {
+            emailService.sendOtpEmail(email, otp, name);
+            return new OtpResponse(true, "OTP sent successfully to your email");
+        } catch (Exception e) {
+            return new OtpResponse(false, "Failed to send OTP: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Verify OTP
+     */
+    @Transactional
+    public OtpResponse verifyEmailOtp(String email, String otp) {
+        // Find the latest OTP for this email
+        Optional<EmailOtp> emailOtpOpt = emailOtpRepository
+                .findTopByEmailAndVerifiedFalseOrderByCreatedAtDesc(email);
+
+        if (emailOtpOpt.isEmpty()) {
+            return new OtpResponse(false, "No OTP found for this email");
+        }
+
+        EmailOtp emailOtp = emailOtpOpt.get();
+
+        // Check if OTP is expired
+        if (emailOtp.isExpired()) {
+            return new OtpResponse(false, "OTP has expired. Please request a new one");
+        }
+
+        // Check if OTP matches
+        if (!emailOtp.getOtp().equals(otp)) {
+            return new OtpResponse(false, "Invalid OTP");
+        }
+
+        // Mark OTP as verified
+        emailOtp.setVerified(true);
+        emailOtpRepository.save(emailOtp);
+
+        return new OtpResponse(true, "Email verified successfully");
+    }
+
+    /**
+     * Register user after email verification
+     */
+    @Transactional
+    public AuthResponse registerWithVerifiedEmail(RegisterRequest request) {
+        // Check if there's a verified OTP for this email
+        Optional<EmailOtp> verifiedOtpOpt = emailOtpRepository
+                .findTopByEmailAndVerifiedTrueOrderByCreatedAtDesc(request.getEmail());
+
+        if (verifiedOtpOpt.isEmpty()) {
+            throw new RuntimeException("Email not verified. Please verify your email first");
+        }
+
+        EmailOtp verifiedOtp = verifiedOtpOpt.get();
+        
+        // Check if the verified OTP is still valid (within 10 minutes of creation)
+        if (verifiedOtp.isExpired()) {
+            throw new RuntimeException("Email verification has expired. Please register again");
+        }
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPhone(request.getPhone());
+        user.setRole(request.getRole() != null ? User.Role.valueOf(request.getRole().toUpperCase()) : User.Role.USER);
+        user.setAuthProvider(User.AuthProvider.LOCAL);
+        user.setEmailVerified(true);
+
+        user = userRepository.save(user);
+
+        // Delete OTP records for this email
+        emailOtpRepository.deleteByEmail(request.getEmail());
+
+        // Send welcome email
+        try {
+            emailService.sendWelcomeEmail(user.getEmail(), user.getName());
+        } catch (Exception e) {
+            // Don't fail registration if welcome email fails
+            System.err.println("Failed to send welcome email: " + e.getMessage());
+        }
+
+        String token = tokenProvider.generateToken(user.getId(), user.getEmail());
+
+        return new AuthResponse(
+                token,
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getStoreId(),
+                user.getPhone(),
+                false // phoneRequired
         );
     }
 }

@@ -4,6 +4,9 @@ import com.medimitra.dto.AuthResponse;
 import com.medimitra.dto.GoogleAuthRequest;
 import com.medimitra.dto.LoginRequest;
 import com.medimitra.dto.RegisterRequest;
+import com.medimitra.dto.SendOtpRequest;
+import com.medimitra.dto.VerifyOtpRequest;
+import com.medimitra.dto.OtpResponse;
 import com.medimitra.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +61,36 @@ public class AuthController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw new RuntimeException("Failed to update phone: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<OtpResponse> sendOtp(@RequestBody SendOtpRequest request) {
+        try {
+            OtpResponse response = authService.sendEmailOtp(request.getEmail(), request.getName());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.ok(new OtpResponse(false, "Failed to send OTP: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<OtpResponse> verifyOtp(@RequestBody VerifyOtpRequest request) {
+        try {
+            OtpResponse response = authService.verifyEmailOtp(request.getEmail(), request.getOtp());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.ok(new OtpResponse(false, "Verification failed: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/register-verified")
+    public ResponseEntity<AuthResponse> registerWithVerifiedEmail(@RequestBody RegisterRequest request) {
+        try {
+            AuthResponse response = authService.registerWithVerifiedEmail(request);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new RuntimeException("Registration failed: " + e.getMessage());
         }
     }
 }

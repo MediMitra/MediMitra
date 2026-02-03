@@ -1,8 +1,6 @@
 import { useState, FormEvent, ChangeEvent, useEffect } from 'react';
 import { motion } from 'framer-motion';
-
-// Get API base URL from environment or use default
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+import { authAPI } from '../api/api';
 
 interface EmailVerificationProps {
   email: string;
@@ -35,20 +33,12 @@ const EmailVerification = ({ email, name, onVerified, onResendOtp, onBack }: Ema
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, otp }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
+      const response = await authAPI.verifyOtp({ email, otp });
+      
+      if (response.data.success) {
         onVerified();
       } else {
-        setError(data.message || 'Invalid OTP. Please try again.');
+        setError(response.data.message || 'Invalid OTP. Please try again.');
       }
     } catch (err: any) {
       setError('Verification failed. Please try again.');

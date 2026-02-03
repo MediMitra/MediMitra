@@ -49,6 +49,21 @@ export interface AuthResponse {
   phoneRequired?: boolean;
 }
 
+export interface OtpRequest {
+  email: string;
+  name: string;
+}
+
+export interface OtpVerifyRequest {
+  email: string;
+  otp: string;
+}
+
+export interface OtpResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface Medicine {
   id: number;
   name: string;
@@ -111,6 +126,9 @@ export const authAPI = {
   register: (userData: RegisterData) => api.post<AuthResponse>('/auth/register', userData),
   googleAuth: (data: GoogleAuthData) => api.post<AuthResponse>('/auth/google', data),
   updatePhone: (userId: number, phone: string, password: string) => api.post<AuthResponse>('/auth/update-phone', { userId, phone, password }),
+  sendOtp: (data: OtpRequest) => api.post<OtpResponse>('/auth/send-code', data),
+  verifyOtp: (data: OtpVerifyRequest) => api.post<OtpResponse>('/auth/verify-code', data),
+  registerWithVerifiedEmail: (userData: RegisterData) => api.post<AuthResponse>('/auth/register-verified', userData),
 };
 
 // Medicine APIs

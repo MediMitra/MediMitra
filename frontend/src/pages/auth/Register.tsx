@@ -6,10 +6,10 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { GoogleSignInButton } from '../../components/GoogleSignInButton';
 import PhoneModal from '../../components/PhoneModal';
 import EmailVerification from '../../components/EmailVerification';
+import { authAPI } from '../../api/api';
 
 // Google Client ID - Replace with your actual client ID
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 interface RegisterFormData {
   name: string;
@@ -41,23 +41,15 @@ const Register = (): JSX.Element => {
     
     // First, send OTP to verify email
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          email: formData.email,
-          name: formData.name 
-        }),
+      const response = await authAPI.sendOtp({ 
+        email: formData.email,
+        name: formData.name 
       });
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.data.success) {
         setShowEmailVerification(true);
       } else {
-        setError(data.message || 'Failed to send OTP. Please try again.');
+        setError(response.data.message || 'Failed to send OTP. Please try again.');
       }
     } catch (err: any) {
       setError('Failed to send OTP. Please try again.');
@@ -70,20 +62,8 @@ const Register = (): JSX.Element => {
     
     // Now register the user
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/register-verified`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
-      }
-
-      const data = await response.json();
+      const response = await authAPI.registerWithVerifiedEmail(formData);
+      const data = response.data;
       
       // Save auth data
       localStorage.setItem('token', data.token);
@@ -105,21 +85,13 @@ const Register = (): JSX.Element => {
 
   const handleResendOtp = async (): Promise<void> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          email: formData.email,
-          name: formData.name 
-        }),
+      const response = await authAPI.sendOtp({ 
+        email: formData.email,
+        name: formData.name 
       });
 
-      const data = await response.json();
-
-      if (!data.success) {
-        setError(data.message || 'Failed to resend OTP');
+      if (!response.data.success) {
+        setError(response.data.message || 'Failed to resend OTP');
       }
     } catch (err) {
       setError('Failed to resend OTP');

@@ -687,20 +687,31 @@ Contributions are welcome! Please follow these steps:
 
 ### Deployment Issues (Render/Vercel)
 
-**Issue:** ❌ Email/OTP not sending - `MailConnectException: Couldn't connect to host, port: smtp.gmail.com, 587; timeout`
-- **Root Cause:** Cloud platforms often block port 587 (STARTTLS) due to spam prevention
-- **Solution:** 
-  ```properties
-  # In application.properties, use port 465 with SSL instead of 587
-  spring.mail.port=465
-  spring.mail.properties.mail.smtp.ssl.enable=true
-  # Remove STARTTLS properties
-  ```
-- **Environment Variables on Render:**
-  - `MAIL_USERNAME` = your-email@gmail.com
-  - `MAIL_PASSWORD` = your-16-digit-app-password (from Google)
-  - Ensure timeout values are set to 60000 (60 seconds)
-- **Verify:** Check Gmail App Password is correct (16 characters without spaces)
+**Issue:** ❌ Email/OTP not sending - `MailConnectException: Couldn't connect to smtp.gmail.com`
+- **Root Cause:** Render/Vercel **FREE TIER BLOCKS Gmail SMTP** (ports 587, 465, 25) to prevent spam
+- **Solution:** Use **SendGrid** (free tier: 100 emails/day) instead of Gmail for production
+  
+  **Quick Fix:**
+  1. Sign up at [SendGrid.com](https://sendgrid.com)
+  2. Create API Key: Settings → API Keys → Create
+  3. Verify sender email: Settings → Sender Authentication
+  4. Update Render environment variables:
+     ```env
+     MAIL_HOST=smtp.sendgrid.net
+     MAIL_PORT=587
+     MAIL_USERNAME=apikey
+     MAIL_PASSWORD=SG.your-sendgrid-api-key-here
+     MAIL_FROM=your-verified-email@gmail.com
+     ```
+  5. Redeploy on Render
+  
+  📘 **Detailed Guide:** See [SENDGRID_SETUP.md](SENDGRID_SETUP.md)
+  
+  **Why this works:**
+  - SendGrid uses API-based SMTP that isn't blocked by cloud providers
+  - Better deliverability than Gmail
+  - Professional email tracking and analytics
+  - Gmail still works fine for localhost development
 
 **Issue:** CORS errors in production
 - **Solution:** Add your Vercel domain to `CORS_ALLOWED_ORIGINS` environment variable on Render

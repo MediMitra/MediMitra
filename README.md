@@ -529,14 +529,116 @@ docker build -t medimitra-frontend .
 docker run -p 80:80 medimitra-frontend
 ```
 
-### Render Deployment
+### Render Deployment (Backend)
 
 This project includes a `render.yaml` configuration for easy deployment to Render.
 
-1. Push code to GitHub
-2. Connect repository to Render
-3. Render will auto-detect `render.yaml` and deploy services
-4. Add environment variables in Render dashboard
+**Step-by-Step Guide:**
+
+1. **Push code to GitHub**
+   ```bash
+   git push origin main
+   ```
+
+2. **Create Render Account** at [render.com](https://render.com)
+
+3. **Create New Web Service**
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - Render will auto-detect `render.yaml`
+
+4. **Configure Environment Variables** (Critical!)
+   
+   In Render Dashboard → Environment → Add the following:
+   
+   ```env
+   # Database (Supabase)
+   DATABASE_URL=jdbc:postgresql://your-project.supabase.co:5432/postgres
+   DB_USERNAME=postgres.your-project-ref
+   DB_PASSWORD=your-database-password
+   
+   # Email (Gmail) - MUST USE PORT 465 FOR RENDER
+   MAIL_USERNAME=your-email@gmail.com
+   MAIL_PASSWORD=your-16-digit-app-password
+   
+   # JWT Secret (generate a strong random key)
+   JWT_SECRET=your-secure-random-key-at-least-32-characters
+   
+   # Google OAuth (Optional)
+   GOOGLE_CLIENT_ID=your-google-client-id
+   
+   # CORS (Add your Vercel frontend URL)
+   CORS_ALLOWED_ORIGINS=https://your-app.vercel.app,https://*.vercel.app
+   
+   # Logging
+   LOG_LEVEL=INFO
+   MAIL_DEBUG=false
+   ```
+
+5. **Deploy**
+   - Click "Create Web Service"
+   - Wait for build to complete (5-10 minutes)
+   - Your backend will be live at `https://your-app.onrender.com`
+
+### Vercel Deployment (Frontend)
+
+**Step-by-Step Guide:**
+
+1. **Push code to GitHub**
+   ```bash
+   git push origin main
+   ```
+
+2. **Import Project to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Click "New Project"
+   - Import your GitHub repository
+   - Select `frontend` as root directory
+
+3. **Configure Build Settings**
+   ```
+   Framework Preset: Vite
+   Build Command: npm run build
+   Output Directory: dist
+   Install Command: npm install
+   ```
+
+4. **Add Environment Variables**
+   
+   In Vercel Dashboard → Settings → Environment Variables:
+   
+   ```env
+   VITE_API_BASE_URL=https://your-backend.onrender.com/api
+   VITE_GOOGLE_CLIENT_ID=your-google-client-id
+   ```
+
+5. **Deploy**
+   - Click "Deploy"
+   - Your frontend will be live at `https://your-app.vercel.app`
+
+### Post-Deployment Checklist
+
+✅ **Backend (Render)**
+- [ ] All environment variables set correctly
+- [ ] Database connection working
+- [ ] Email sending working (test OTP/verification)
+- [ ] CORS includes frontend URL
+- [ ] Health check endpoint responding
+
+✅ **Frontend (Vercel)**
+- [ ] API calls reaching backend
+- [ ] Google OAuth redirect URLs updated
+- [ ] No CORS errors in console
+- [ ] All pages loading correctly
+
+✅ **Email Configuration**
+- [ ] Gmail 2FA enabled
+- [ ] App Password generated (16 digits)
+- [ ] Port 465 configured (not 587)
+- [ ] SSL enabled (not STARTTLS)
+- [ ] Timeout increased to 60000ms
+
+### Render Deployment
 
 ## 🧪 Testing
 
@@ -580,16 +682,52 @@ Contributions are welcome! Please follow these steps:
 **Issue:** Database connection failed
 - **Solution:** Check Supabase connection string and credentials
 
-**Issue:** Email not sending
+**Issue:** Email not sending (Local development)
 - **Solution:** Verify Gmail app password and SMTP settings
+
+### Deployment Issues (Render/Vercel)
+
+**Issue:** ❌ Email/OTP not sending - `MailConnectException: Couldn't connect to host, port: smtp.gmail.com, 587; timeout`
+- **Root Cause:** Cloud platforms often block port 587 (STARTTLS) due to spam prevention
+- **Solution:** 
+  ```properties
+  # In application.properties, use port 465 with SSL instead of 587
+  spring.mail.port=465
+  spring.mail.properties.mail.smtp.ssl.enable=true
+  # Remove STARTTLS properties
+  ```
+- **Environment Variables on Render:**
+  - `MAIL_USERNAME` = your-email@gmail.com
+  - `MAIL_PASSWORD` = your-16-digit-app-password (from Google)
+  - Ensure timeout values are set to 60000 (60 seconds)
+- **Verify:** Check Gmail App Password is correct (16 characters without spaces)
+
+**Issue:** CORS errors in production
+- **Solution:** Add your Vercel domain to `CORS_ALLOWED_ORIGINS` environment variable on Render
+  ```
+  CORS_ALLOWED_ORIGINS=https://your-app.vercel.app,https://*.vercel.app
+  ```
+
+**Issue:** 502 Bad Gateway on Render
+- **Solution:** Ensure `PORT` environment variable is set and app listens on `${PORT:8080}`
+
+**Issue:** Database connection pool exhausted
+- **Solution:** Adjust HikariCP settings in application.properties:
+  ```properties
+  spring.datasource.hikari.maximum-pool-size=5
+  spring.datasource.hikari.minimum-idle=1
+  ```
 
 ### Frontend Issues
 
 **Issue:** API calls failing with CORS error
-- **Solution:** Check CORS configuration in `SecurityConfig.java`
+- **Solution:** Check CORS configuration in `SecurityConfig.java` and ensure frontend URL is in allowed origins
 
 **Issue:** Google OAuth not working
-- **Solution:** Verify Google Client ID in `.env` file
+- **Solution:** Add production URL to Google Cloud Console authorized origins and redirect URIs
+
+**Issue:** Environment variables not loading on Vercel
+- **Solution:** Set all `VITE_*` variables in Vercel dashboard (Settings → Environment Variables)
 
 ## 📄 License
 
@@ -611,7 +749,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email your.email@example.com or open an issue in the GitHub repository.
+For support, email bisht.dheeraj2004c@example.com or open an issue in the GitHub repository.
 
 ---
 

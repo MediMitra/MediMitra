@@ -60,6 +60,7 @@ public class EmailService {
                 "Thank you for registering with MediMitra!\n\n" +
                 "Your One-Time Password (OTP) for email verification is: %s\n\n" +
                 "This OTP is valid for 10 minutes.\n\n" +
+                "⚠️ NOTE: If you don't see this email in your inbox, please check your SPAM/JUNK folder.\n\n" +
                 "If you didn't request this, please ignore this email.\n\n" +
                 "Best regards,\n" +
                 "MediMitra Team",

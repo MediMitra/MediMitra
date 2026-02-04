@@ -21,9 +21,20 @@ node_modules/
 dist/
 .vite/
 *.local
+
+# Environment variables - NEVER commit these!
 .env
 .env.*
 !.env.example
+!.env.template
+backend/.env
+backend/.env.*
+!backend/.env.example
+!backend/.env.template
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+!frontend/.env.template
 
 # Maven/Java
 backend/target/

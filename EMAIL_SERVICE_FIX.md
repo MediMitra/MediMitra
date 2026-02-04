@@ -22,8 +22,8 @@
 ### 3. **Environment Variables Configuration**
 **Status:** ✅ Already correctly configured in `.env` file:
 ```
-MAIL_USERNAME=dheerajsinghnew1@gmail.com
-MAIL_PASSWORD=mgmzqmduvbjoutzw
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
 ```
 
 ## Files Modified
@@ -39,8 +39,8 @@ MAIL_PASSWORD=mgmzqmduvbjoutzw
 ### 1. Start Backend (with environment variables loaded):
 ```powershell
 # Set environment variables (if not using .env)
-$env:MAIL_USERNAME="dheerajsinghnew1@gmail.com"
-$env:MAIL_PASSWORD="mgmzqmduvbjoutzw"
+$env:MAIL_USERNAME="your-email@gmail.com"
+$env:MAIL_PASSWORD="your-app-password"
 
 # Start backend
 mvn spring-boot:run
@@ -69,8 +69,8 @@ Look for these log messages in the terminal:
 ## Production Deployment (Render)
 
 Make sure these environment variables are set in Render:
-- `MAIL_USERNAME=dheerajsinghnew1@gmail.com`
-- `MAIL_PASSWORD=mgmzqmduvbjoutzw`
+- `MAIL_USERNAME=your-email@gmail.com`
+- `MAIL_PASSWORD=your-app-password`
 
 After setting, redeploy the backend service.
 

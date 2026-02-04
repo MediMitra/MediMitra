@@ -5,7 +5,7 @@ const client = new Client({
   host: process.env.DB_HOST || 'aws-1-us-east-1.pooler.supabase.com',
   port: parseInt(process.env.DB_PORT || '5432'),
   database: process.env.DB_NAME || 'postgres',
-  user: process.env.DB_USERNAME || 'postgres.gufhpybptyzcpofgljxc',
+  user: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD,
   ssl: { rejectUnauthorized: false }
 });

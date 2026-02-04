@@ -6,7 +6,7 @@ conn_params = {
     'host': os.getenv('DB_HOST', 'aws-1-us-east-1.pooler.supabase.com'),
     'port': int(os.getenv('DB_PORT', '5432')),
     'database': os.getenv('DB_NAME', 'postgres'),
-    'user': os.getenv('DB_USERNAME', 'postgres.gufhpybptyzcpofgljxc'),
+    'user': os.getenv('DB_USERNAME', 'postgres'),
     'password': os.getenv('DB_PASSWORD')
 }
 

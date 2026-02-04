@@ -7,7 +7,7 @@ Create a `.env` file in the backend folder (for local development) or set these 
 ```bash
 # Database Configuration (Supabase PostgreSQL)
 DATABASE_URL=jdbc:postgresql://aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require
-DB_USERNAME=postgres.gufhpybptyzcpofgljxc
+DB_USERNAME=your_database_username
 DB_PASSWORD=your_database_password
 
 # JWT Configuration

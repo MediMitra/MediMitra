@@ -7,9 +7,5 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "env": {
-    "VITE_API_BASE_URL": "https://medimitra-backend-xws5.onrender.com/api",
-    "VITE_GOOGLE_CLIENT_ID": "864870563363-h7moljcd7926tt1af8fmbpaodqct0ntf.apps.googleusercontent.com"
-  }
+  ]
 }

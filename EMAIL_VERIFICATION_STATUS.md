@@ -6,7 +6,7 @@
 1. **Email Service** (`EmailService.java`)
    - Gmail SMTP integration configured
    - Sends OTP emails and welcome emails
-   - Uses app password: `mgmzqmduvbjoutzw`
+   - Uses app password configured via environment variable
 
 2. **Database Entities**
    - `EmailOtp.java` - Stores OTP records with 10-minute expiry
@@ -70,8 +70,8 @@ Vercel should automatically deploy the new changes.
 ### 3. Verify Email Settings in Render
 Ensure the environment variables are set in Render dashboard:
 
-- `MAIL_USERNAME` = `dheerajsinghnew1@gmail.com`
-- `MAIL_PASSWORD` = `mgmzqmduvbjoutzw`
+- `MAIL_USERNAME` = Your Gmail address
+- `MAIL_PASSWORD` = Your Gmail app password (from Google Account settings)
 
 ---
 
@@ -139,9 +139,10 @@ After running the migration and deploying:
 ### Gmail SMTP Configuration:
 - **Host:** smtp.gmail.com
 - **Port:** 587 (STARTTLS)
-- **Username:** dheerajsinghnew1@gmail.com
-- **App Password:** mgmzqmduvbjoutzw
+- **Username:** Set via MAIL_USERNAME environment variable
+- **App Password:** Set via MAIL_PASSWORD environment variable
 - **Free Tier:** 500 emails/day
+- ⚠️ **Security**: Never commit credentials! Use environment variables.
 
 ---
 

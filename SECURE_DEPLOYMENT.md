@@ -19,7 +19,7 @@ This guide explains how to securely manage sensitive information like API keys a
 
 ```bash
 # Required for Google OAuth
-GOOGLE_CLIENT_ID=864870563363-h7moljcd7926tt1af8fmbpaodqct0ntf.apps.googleusercontent.com
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 
 # Required for database connection
 DB_PASSWORD=your-actual-database-password
@@ -42,7 +42,7 @@ CORS_ALLOWED_ORIGINS=https://your-frontend-domain.com
 3. **Add this environment variable:**
 
 ```bash
-VITE_GOOGLE_CLIENT_ID=864870563363-h7moljcd7926tt1af8fmbpaodqct0ntf.apps.googleusercontent.com
+VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 ```
 
 ## 🔐 Security Best Practices
@@ -80,12 +80,12 @@ openssl rand -base64 32
 ### Local Development
 ```bash
 # Backend - create .env file in backend/ directory
-GOOGLE_CLIENT_ID=864870563363-h7moljcd7926tt1af8fmbpaodqct0ntf.apps.googleusercontent.com
-DB_PASSWORD=Dheeraj@#123
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+DB_PASSWORD=your_actual_database_password_here
 JWT_SECRET=your-dev-jwt-secret
 
 # Frontend - .env file already created
-VITE_GOOGLE_CLIENT_ID=864870563363-h7moljcd7926tt1af8fmbpaodqct0ntf.apps.googleusercontent.com
+VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 ```
 
 ### Production Testing

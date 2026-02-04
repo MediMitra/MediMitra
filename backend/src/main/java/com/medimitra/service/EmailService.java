@@ -3,12 +3,16 @@ package com.medimitra.service;
 import com.medimitra.model.Order;
 import com.medimitra.model.OrderItem;
 import com.medimitra.model.Address;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,6 +25,9 @@ public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private InvoicePdfGenerator invoicePdfGenerator;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -89,90 +96,83 @@ public class EmailService {
     }
 
     /**
-     * Send order invoice email to customer after successful order placement
+     * Send order invoice email to customer with PDF attachment
      */
     public void sendOrderInvoiceEmail(Order order) {
         try {
             String toEmail = order.getUser().getEmail();
             String userName = order.getUser().getName();
             
-            logger.info("Attempting to send invoice email to: {} for Order #{}", toEmail, order.getId());
+            logger.info("Attempting to send invoice email with PDF to: {} for Order #{}", toEmail, order.getId());
             
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject("MediMitra - Order Confirmation #" + order.getId());
+            // Generate PDF invoice
+            byte[] pdfBytes = invoicePdfGenerator.generateInvoicePdf(order);
             
-            // Build order items list
-            StringBuilder itemsList = new StringBuilder();
-            int itemNo = 1;
-            for (OrderItem item : order.getItems()) {
-                BigDecimal itemTotal = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
-                itemsList.append(String.format("  %d. %s\n", itemNo, item.getMedicine().getName()));
-                itemsList.append(String.format("     Qty: %d × ₹%.2f = ₹%.2f\n\n", 
-                    item.getQuantity(), item.getPrice(), itemTotal));
-                itemNo++;
-            }
+            // Create MIME message for attachment support
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             
-            // Build delivery address
-            Address address = order.getAddress();
-            String deliveryAddress = String.format("%s\n     %s%s\n     %s, %s - %s",
-                address.getFullName(),
-                address.getAddressLine1(),
-                address.getAddressLine2() != null ? ", " + address.getAddressLine2() : "",
-                address.getCity(),
-                address.getState(),
-                address.getZipCode()
-            );
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject("MediMitra - Order Invoice #" + order.getId());
             
-            // Format date
-            String orderDate = order.getCreatedAt().format(DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
-            
+            // Email body
             String emailBody = String.format(
-                "Hello %s,\n\n" +
-                "Thank you for your order! Your order has been placed successfully.\n\n" +
-                "═══════════════════════════════════════════════════════\n" +
-                "                    ORDER INVOICE\n" +
-                "═══════════════════════════════════════════════════════\n\n" +
-                "Order ID: #%d\n" +
-                "Order Date: %s\n" +
-                "Payment Method: %s\n" +
-                "Status: %s\n\n" +
-                "───────────────────────────────────────────────────────\n" +
-                "ITEMS ORDERED:\n" +
-                "───────────────────────────────────────────────────────\n" +
-                "%s" +
-                "───────────────────────────────────────────────────────\n" +
-                "                              TOTAL: ₹%.2f\n" +
-                "───────────────────────────────────────────────────────\n\n" +
-                "DELIVERY ADDRESS:\n" +
-                "     %s\n\n" +
-                "%s" +
-                "═══════════════════════════════════════════════════════\n\n" +
-                "You can track your order status in your MediMitra account.\n\n" +
-                "If you have any questions, please contact our support.\n\n" +
-                "Thank you for shopping with MediMitra!\n\n" +
+                "Dear %s,\n\n" +
+                "Thank you for your order!\n\n" +
+                "Please find your invoice attached as a PDF document.\n\n" +
+                "Order Details:\n" +
+                "• Invoice Number: INV-%06d\n" +
+                "• Order ID: #%d\n" +
+                "• Total Amount: ₹%s\n" +
+                "• Status: %s\n\n" +
+                "Your order will be delivered to:\n" +
+                "%s\n\n" +
+                "Thank you for choosing MediMitra for your healthcare needs!\n\n" +
+                "For any queries, contact us at bisht.dheeraj2004c@gmail.com or call +91-9389788529\n\n" +
                 "Best regards,\n" +
-                "MediMitra Team\n" +
-                "Your Trusted Medical E-Commerce Platform",
+                "Team MediMitra",
                 userName,
                 order.getId(),
-                orderDate,
-                order.getPaymentMethod() != null ? order.getPaymentMethod() : "N/A",
-                order.getStatus().name(),
-                itemsList.toString(),
-                order.getTotalAmount(),
-                deliveryAddress,
-                order.getStore() != null ? "ASSIGNED STORE: " + order.getStore().getName() + "\n\n" : ""
+                order.getId(),
+                order.getTotalAmount().toString(),
+                order.getStatus(),
+                formatAddress(order.getAddress(), userName)
             );
             
-            message.setText(emailBody);
-            mailSender.send(message);
+            helper.setText(emailBody);
             
-            logger.info("Invoice email sent successfully to: {} for Order #{}", toEmail, order.getId());
+            // Attach PDF invoice
+            String fileName = String.format("MediMitra_Invoice_%d.pdf", order.getId());
+            helper.addAttachment(fileName, new ByteArrayResource(pdfBytes));
+            
+            mailSender.send(mimeMessage);
+            
+            logger.info("Invoice email with PDF sent successfully to: {} for Order #{}", toEmail, order.getId());
+            
+        } catch (MessagingException e) {
+            logger.error("Failed to create invoice email message for Order #{}: {}", order.getId(), e.getMessage());
+            throw new RuntimeException("Failed to create invoice email: " + e.getMessage());
         } catch (Exception e) {
-            // Don't throw exception for invoice email failure - order is already placed
             logger.error("Failed to send invoice email for Order #{}: {}", order.getId(), e.getMessage());
+            throw new RuntimeException("Failed to send invoice email: " + e.getMessage());
         }
+    }
+    
+    private String formatAddress(Address address, String userName) {
+        if (address == null) {
+            return "Address not available";
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append(userName).append("\n");
+        if (address.getAddressLine1() != null) {
+            sb.append(address.getAddressLine1()).append("\n");
+        }
+        sb.append(address.getCity()).append(", ").append(address.getState());
+        if (address.getZipCode() != null) {
+            sb.append(" - ").append(address.getZipCode());
+        }
+        return sb.toString();
     }
 }

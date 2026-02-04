@@ -176,6 +176,9 @@ export const orderAPI = {
   getOrderById: (orderId: number) => api.get<Order>(`/orders/${orderId}`),
   checkout: (checkoutData: CheckoutData) => api.post<Order>('/orders/checkout', checkoutData),
   deleteOrder: (orderId: number) => api.delete(`/orders/${orderId}`),
+  downloadInvoice: (orderId: number) => api.get(`/orders/${orderId}/invoice/download`, { 
+    responseType: 'blob' 
+  }),
 };
 
 // Address APIs

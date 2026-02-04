@@ -1,13 +1,30 @@
 import { useEffect, useMemo, useState } from 'react';
 import { orderAPI } from '../../api/api';
 import { motion } from 'framer-motion';
-import { generateInvoice } from '../../utils/invoiceGenerator';
 
 function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [expandedOrder, setExpandedOrder] = useState(null);
+
+  const downloadInvoice = async (orderId: number) => {
+    try {
+      const response = await orderAPI.downloadInvoice(orderId);
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `MediMitra_Invoice_${orderId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to download invoice', err);
+      alert('Failed to download invoice. Please try again.');
+    }
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -391,7 +408,7 @@ function Orders() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => generateInvoice(order)}
+                onClick={() => downloadInvoice(order.id)}
                 className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-semibold shadow-lg flex items-center gap-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -113,6 +113,17 @@ public class OrderService {
             order.getItems().add(orderItem);
         }
 
+        // Calculate tax (5% of subtotal)
+        BigDecimal tax = totalAmount.multiply(new BigDecimal("0.05"));
+        
+        // Calculate shipping (free for orders >= 200, otherwise 50)
+        BigDecimal shipping = totalAmount.compareTo(new BigDecimal("200")) >= 0 
+                ? BigDecimal.ZERO 
+                : new BigDecimal("50");
+        
+        // Add tax and shipping to total amount
+        totalAmount = totalAmount.add(tax).add(shipping);
+        
         order.setTotalAmount(totalAmount);
         
         // Assign store

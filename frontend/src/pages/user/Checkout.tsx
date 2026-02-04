@@ -143,8 +143,20 @@ const Checkout = () => {
       const downloadInvoice = confirm(`Order placed successfully! Order ID: #${response.data.id}\n\nWould you like to download your invoice now?`);
       
       if (downloadInvoice && response.data) {
-        // Generate and download invoice
-        generateInvoice(response.data);
+        try {
+          const pdfResponse = await orderAPI.downloadInvoice(response.data.id);
+          const blob = new Blob([pdfResponse.data], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `MediMitra_Invoice_${response.data.id}.pdf`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        } catch (err) {
+          console.error('Failed to download invoice', err);
+        }
       }
       
       // Redirect after a short delay

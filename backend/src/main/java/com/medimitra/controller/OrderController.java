@@ -3,8 +3,11 @@ package com.medimitra.controller;
 import com.medimitra.dto.CheckoutRequest;
 import com.medimitra.model.Order;
 import com.medimitra.model.User;
+import com.medimitra.service.InvoicePdfGenerator;
 import com.medimitra.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +20,9 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private InvoicePdfGenerator invoicePdfGenerator;
 
     @GetMapping
     @Transactional(readOnly = true)
@@ -77,5 +83,30 @@ public class OrderController {
             @PathVariable Long orderId) {
         orderService.deleteUserOrder(orderId, user.getId());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{orderId}/invoice/download")
+    public ResponseEntity<byte[]> downloadInvoice(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long orderId) {
+        System.out.println("=== GET /api/orders/" + orderId + "/invoice/download ===");
+        System.out.println("User: " + (user != null ? "ID=" + user.getId() + ", Email=" + user.getEmail() : "NULL"));
+        
+        // Get the order and verify user ownership
+        Order order = orderService.getOrderById(orderId, user);
+        
+        // Generate PDF
+        byte[] pdfBytes = invoicePdfGenerator.generateInvoicePdf(order);
+        
+        // Set headers for PDF download
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "MediMitra_Invoice_" + orderId + ".pdf");
+        headers.setContentLength(pdfBytes.length);
+        
+        System.out.println("PDF generated successfully: " + pdfBytes.length + " bytes");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
     }
 }

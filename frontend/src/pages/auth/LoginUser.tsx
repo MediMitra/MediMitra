@@ -112,10 +112,16 @@ function LoginUser(): JSX.Element {
           >
             {/* Header */}
             <div className="mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-200">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+              <div className="flex items-center gap-3 mb-6">
+                <img 
+                  src="/logo.png" 
+                  alt="MediMitra Logo" 
+                  className="h-16 w-auto object-contain"
+                />
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">MediMitra</h2>
+                  <p className="text-sm text-primary-600">Your Trusted Healthcare Partner</p>
+                </div>
               </div>
               <h1 className="text-4xl font-bold text-gray-900 mb-3">Patient Portal</h1>
               <p className="text-gray-600 text-lg">Access your healthcare dashboard</p>

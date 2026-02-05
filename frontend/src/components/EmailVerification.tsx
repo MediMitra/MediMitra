@@ -106,6 +106,9 @@ const EmailVerification = ({ email, name, onVerified, onResendOtp, onBack }: Ema
         <p className="text-gray-600 text-lg">
           We've sent a 6-digit OTP to <span className="font-semibold text-blue-600">{email}</span>
         </p>
+        <p className="text-sm text-gray-500 mt-3">
+          💡 If you don't find the email in your inbox, try checking your <span className="font-semibold">Junk / Spam</span> folder
+        </p>
       </div>
 
       {/* Success Message */}

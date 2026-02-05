@@ -19,8 +19,10 @@ import { StoreDashboard } from './pages/store';
 function AppContent() {
   const { user } = useAuth();
   const location = window.location.pathname;
-  const hideNavbarPages = ['/', '/home', '/login-selection', '/login', '/login-admin', '/login-store', '/login-user', '/register'];
-  const showNavbar = !hideNavbarPages.includes(location);
+  // Hide navbar on auth pages and home page ONLY when user is NOT logged in
+  const authPages = ['/login-selection', '/login', '/login-admin', '/login-store', '/login-user', '/register'];
+  const isHomePage = location === '/' || location === '/home';
+  const showNavbar = user ? !authPages.includes(location) : !(authPages.includes(location) || isHomePage);
 
   return (
     <div className="min-h-screen bg-white">
